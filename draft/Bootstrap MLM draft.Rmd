@@ -1,6 +1,6 @@
 ---
 title             : "Bootstrap methods for multilevel data when asymptotic distributional assumptions are not tenable"
-shorttitle        : "BOOTSTRAP MLM"
+shorttitle        : "BOOTSTRAPPING MLM"
 
 author: 
   - name          : "First Author"
@@ -9,50 +9,28 @@ author:
     address       : "Postal address"
     email         : "my@email.com"
     role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
-      - "Conceptualization"
-      - "Writing - Original Draft Preparation"
-      - "Writing - Review & Editing"
+
   - name          : "Ernst-August Doelle"
     affiliation   : "1,2"
     role:
-      - "Writing - Review & Editing"
-      - "Supervision"
+
   - name          : "Ernst-August Doelle"
     affiliation   : "1,2"
     role:
-      - "Writing - Review & Editing"
-      - "Supervision"
 
 affiliation:
   - id            : "1"
-    institution   : "Wilhelm-Wundt-University"
-  - id            : "2"
-    institution   : "Konstanz Business School"
+    institution   : "University of Southern California"
 
 authornote: |
-  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+  \addORCIDlink{Winnie Wing-Yee Tse}{0000-0001-5175-6754}
+  
+  \addORCIDlink{Mark H. C. Lai}{0000-0002-9196-7406}
+  
+  \addORCIDlink{Yichi Zhang}{0000-0002-4112-2106}
 
-  Enter author note here.
-
-abstract: |
-  One or two sentences providing a **basic introduction** to the field,  comprehensible to a scientist in any discipline.
-  
-  Two to three sentences of **more detailed background**, comprehensible  to scientists in related disciplines.
-  
-  One sentence clearly stating the **general problem** being addressed by  this particular study.
-  
-  One sentence summarizing the main result (with the words "**here we show**" or their equivalent).
-  
-  Two or three sentences explaining what the **main result** reveals in direct comparison to what was thought to be the case previously, or how the  main result adds to previous knowledge.
-  
-  One or two sentences to put the results into a more **general context**.
-  
-  Two or three sentences to provide a **broader perspective**, readily comprehensible to a scientist in any discipline.
-  
-  <!-- https://tinyurl.com/ybremelq -->
-  
 keywords: "multilevel modeling, bootstrap, standard errors, confidence intervals"
-bibliography: ["BootstrapMLM.bib"]
+bibliography: ["mlm_boot.bib"]
 floatsintext: no
 figurelist: no
 tablelist: no
@@ -62,14 +40,14 @@ mask: no
 draft: no
 biblio-style: "apa"
 documentclass: "apa7"
-classoption: "man"
 output: 
   papaja::apa6_pdf:
-    citation_package: biblatex
+    #citation_package: biblatex
     includes:
       in_header: "preamble.tex"
+  papaja::apa6_word:
+    number_sections: false
 ---
-\newcommand{\bv}[1]{\boldsymbol{\mathbf{#1}}}
 
 ```{r setup, include = FALSE}
 library("papaja")
@@ -81,31 +59,35 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Section I: What is Bootstrap
 
-```{r child='Introduction.Rmd'}
+```{r child='brief intro.Rmd'}
 
 ```
 
-# Section II: Bootstrap for MLM
+# Section II: Bootstrapping for Multilevel Models
 
-```{r child ='MLM_bootstrap.Rmd'}
+## Challenges With MLM
 
-```
-
-
-# Section III: Confidence Interval
-
-
-# Section IV: Illustrative Example
-
-```{r child='example.Rmd'}
+```{r child ='mlm_boot.Rmd'}
 
 ```
 
-# Section V: Software
+## Types of Bootstrapping 
 
-```{r child='discussion.Rmd'}
+```{r child ='boot_types.Rmd'}
 
 ```
+
+<!-- # Section III: Confidence Interval -->
+
+<!-- ```{r child='boot_ci.Rmd'} -->
+
+<!-- ``` -->
+
+<!-- # Section IV: Illustrative Example -->
+
+<!-- ```{r child='example.Rmd'} -->
+
+<!-- ``` -->
 
 # References
 

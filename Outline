@@ -4,7 +4,7 @@ I. What is Bootstrap
   
   1. Brief Introduction + Overview (Yichi)
   2. Background (Winnie)
-    1) Model Equations
+    1) Model Equations 
     2) ML estimation
     3) Assumptions
   3. General Principles of Bootstrap (Winnie)
@@ -16,13 +16,13 @@ II. Bootstrap for MLM (Yichi)
  
   1. Bootstrap for MLM introductory paragraphs (Mark)
 
-  2. Parametric multilevel bootstrap
+  2. Parametric multilevel bootstrap (Yichi)
   
-  3. Residuals multilevel bootstrap
+  3. Residuals multilevel bootstrap (Yichi)
     1) Residual bootstrap
     2) Wild bootstrap
   
-  4. Cases multilevel bootstrap
+  4. Cases multilevel bootstrap (Yichi)
     Note: discuss different versions (i.e., sample level-1/level-2/both)
   Provides a table to summarize software options (add CI)
 
