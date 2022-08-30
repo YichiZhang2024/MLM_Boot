@@ -1,9 +1,17 @@
 ## 1. Parametric multilevel bootstrap 
-  
+
+The parametric bootstrap has the strongest assumption among all methods, as it assumes a correct function form and residual distributions. Residuals, are assumed to 
+
+1. 
+
 ## 2. Residuals multilevel bootstrap 
+
+Different from parametric bootstrap, residuals bootstrap does not assume the residuals follow certain distributions. However, the homoscedasticity of residuals still hold. 
 
 ### 2.1 Residual bootstrap
 
 ### 2.2 Wild bootstrap
   
 ## 3. Cases multilevel bootstrap 
+
+The cases bootstrap has the least assumption because it only assumes a correct specification of hiearchical structure. 
