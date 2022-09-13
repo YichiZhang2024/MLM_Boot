@@ -1,0 +1,11 @@
+In addition to obtain bias-corrected standard errors, bootstrapping is widely used for computing confidence intervals (CI). In this section, we will discuss different types of two-sided bootstrap confidence intervals. Assume the true value of parameter $\theta$ is $\theta_0$, and the probability of the confidence intervals containing the $\theta_0$ is $1-\alpha$. Let $\Phi(z)$ be the standard normal distribution, then the $z_\alpha$ represents the $\alpha$th quantile of the distribution such that $z_\alpha = \Phi^{-1}(\alpha)$. The distribution function of the estimator $\hat \theta$ is $H(\theta) = \text{Pr}(\hat\theta \leq\theta)$. The consistent estimator of this distribution obtained from $b = 1,..., B$ bootstrap replications $\theta_b^*$ is $\hat H(\theta) = \frac{\#\{b:\theta_B^* \leq \theta\}}{B}$.
+
+## Bootstrap normal CI
+
+## Hall's percentile/Percentile-t CI
+
+## Percentile CI
+
+## Studentized CI
+
+### Bias-Corrected and Bias-Corrected and accelerated CI

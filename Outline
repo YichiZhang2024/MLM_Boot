@@ -47,6 +47,7 @@ Source: https://mwsug.org/proceedings/2018/HS/MWSUG-2018-HS-118.pdf
 was to study the safety of the drug chenodiol for the treatment of cholesterol gallstones
 4. junior school project (JSP) data (Goldstein, 2011; Mortimore et al., 1988) that is stored as jsp728 in lmeresampler (Roy & Korobova, 2021).
 5. Dialyzer data set provided by nlme (Roy & Korobova, 2021).
+6. Popular data from boot mlm vignette Hox (2010)
 
 Goal of the illustrative example
 1. compare the ML/REML estimates with bootstrapped estimates (point estimates and SE table)
