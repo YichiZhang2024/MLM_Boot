@@ -63,6 +63,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
+## A Basic Procedure of Bootstrap
+
+```{r child='boot_intro.Rmd'}
+
+```
+
+
 # Section II: Bootstrapping for Multilevel Models
 
 ## Challenges With MLM
