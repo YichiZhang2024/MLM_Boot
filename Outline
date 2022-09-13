@@ -38,5 +38,19 @@ V. Illustrative Example(s) (Yichi, Winnie)
   1. illustrate with bootMLM
  (2. other available options, provides source)
 
+Potential Data set:
+1. High School and Beyond (HSB) (Snijder & Bosker)
+2. disease progression model inspired from the model of Parkinson’s disease developed by Holford et al.
+Source: https://www.researchgate.net/publication/235778041_A_comparison_of_bootstrap_approaches_for_estimating_uncertainty_of_parameters_in_linear_mixed-effects_models?enrichId=rgreq-a8382accc4f83bd1896e804a4b3b4187-XXX&enrichSource=Y292ZXJQYWdlOzIzNTc3ODA0MTtBUzo2MTg5NDIxNjI4MjUyMTlAMTUyNDU3ODcxOTg4OQ%3D%3D&el=1_x_3&_esc=publicationCoverPdf
+3. National Cooperative Gallstone Study (NCGS), where one of the major interests 
+Source: https://mwsug.org/proceedings/2018/HS/MWSUG-2018-HS-118.pdf 
+was to study the safety of the drug chenodiol for the treatment of cholesterol gallstones
+4. junior school project (JSP) data (Goldstein, 2011; Mortimore et al., 1988) that is stored as jsp728 in lmeresampler (Roy & Korobova, 2021).
+5. Dialyzer data set provided by nlme (Roy & Korobova, 2021).
+
+Goal of the illustrative example
+1. compare the ML/REML estimates with bootstrapped estimates (point estimates and SE table)
+2. model diagnostic?
+
 
   
