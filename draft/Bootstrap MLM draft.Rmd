@@ -89,6 +89,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 <!-- ``` -->
 
+\newpage
+
 # References
 
 ::: {#refs custom-style="Bibliography"}
