@@ -1,17 +1,37 @@
 ## 1. Parametric multilevel bootstrap 
 
-The parametric bootstrap has the strongest assumption among all methods, as it assumes a correct function form and residual distributions. Residuals, are assumed to 
+The parametric bootstrap has the strongest assumption among all methods, as it assumes a correct function form and residual distributions [@leeden2008]. The level-1 residuals are assumed to follow a normal distribution, add equation here, and the level-2 residuals are assumed to follow a bivariate normal distribution, add equation here. The procedure for parameteric bootstrap is described below.
 
-1. 
+1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects
+2. Draw level-2 residuals from a multivariate distribution 
+3. Draw level-1 residuals from a normal distribution
+4. Generate the bootstrap samples, $y^*$, with $y^* = X_j\beta + Z_j\delta_j^* + \epsilon_j^*$
+5. Refit the two-level model to bootstrap data and obtain parameter estimates
+6. Repeat steps 2-5 $B$ times and compute the bias-corrected estimates and standard errors 
 
 ## 2. Residuals multilevel bootstrap 
 
-Different from parametric bootstrap, residuals bootstrap does not assume the residuals follow certain distributions. However, the homoscedasticity of residuals still hold. 
+Different from parametric bootstrap, residuals bootstrap does not assume the residuals follow certain distributions. However, the homoscedasticity of residuals still hold [@leeden2008]. In this section, we discuss two types of residual bootstrap. The procedure for residuals bootstrap is similar to the parameteric bootstrap, except the residuals are not drawing from new distributions but from resampling the reflated empirical residuals of fitted models with replacement. The empirical residuals can be calculated by subtracting the predicted response from observed data [@goldstein2011]. Beacuse the sampling variance of empirical residuals $u_j$, $\epsilon_ij$ are smaller than $\sigma_{uj}$ and $\sigma$[@lai2020], these residuals are shrunken and will lead to biased results if directly used to draw new bootstrapped residuals. Thus, the first step is to reflate these shrunken residuals. 
 
-### 2.1 Residual bootstrap
+1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects. Note residuals from both levels need to be centered.
+2. Reflate the centered empirical residuals.
+3. Draw level-2 residuals from the reflated empirical residuals with replacement
+4. Draw level-1 residuals from the reflated empirical residuals with replacement
+5. Generate the bootstrap samples, $y^*$, with $y^* = X_j\beta + Z_j\delta_j^* + \epsilon_j^*$
+6. Refit the two-level model to bootstrap data and obtain parameter estimates
+7. Repeat steps 3-6 $B$ times and compute the bias-corrected estimates and standard errors 
 
-### 2.2 Wild bootstrap
-  
-## 3. Cases multilevel bootstrap 
+### 3. Wild bootstrap
+
+The wild bootstrap is a resampling bootstrap develop for models with heteroscedastic errors [@wu1986], and was extended to multilevel models by @modugno2015. The 
+
+1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects. Note residuals from both levels need to be centered.
+2. Draw level-2 residuals from the auxiliary distributions described above
+3. Draw level-1 residuals from the auxiliary distributions described above
+4. Generate the bootstrap samples, $y^*$, with $y^* = X_j\beta + Z_j\delta_j^* + \epsilon_j^*$
+5. Refit the two-level model to bootstrap data and obtain parameter estimates
+6. Repeat steps 3-6 $B$ times and compute the bias-corrected estimates and standard errors 
+
+## 4. Cases multilevel bootstrap 
 
 The cases bootstrap has the least assumption because it only assumes a correct specification of hiearchical structure. 

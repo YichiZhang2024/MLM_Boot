@@ -11,6 +11,7 @@ I. What is Bootstrap
     1) resampling technique
     2) Bias correction and computation of SE
     3) Computation of confidence intervals
+    examples of different types of Bootstrap CI.  
     
 II. Bootstrap for MLM (Yichi)
  
@@ -29,7 +30,7 @@ II. Bootstrap for MLM (Yichi)
 III. Bootstrap CI
 
   1. Types of bootstrap CI (Yichi)
-  
+  single level/multiple levels confidence interval. 
   2. When to use bootstrap CI (Mark)
   Review existing articles for recommendations
   
