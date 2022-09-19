@@ -63,6 +63,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
+## Model Equation and Assumptions
+
+```{r child='mod_assumption.Rmd'}
+
+```
+
+
 ## A Basic Procedure of Bootstrap
 
 ```{r child='boot_intro.Rmd'}
