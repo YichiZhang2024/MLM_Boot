@@ -1,0 +1,29 @@
+In this chapter, we focus on the discussion of bootstrap methods on two-level models, which describe the multilevel structure of participants nested within clusters. For $J$ clusters, each cluster with $n_1, n_2, \dots, n_j$ participants, and $p-1$ predictors, a two-level model is given by
+\begin{equation}
+\bv{y_j} = \bv{X_j}\bv{\beta} + \bv{Z_j} \bv{U_j} + e_j
+(\#eq:mod-eq)
+\end{equation}
+where $\bv{y_j}$ is a $n_j \times 1$ outcome vector for the $j$th cluster, $\bv{X_j}$ is a $n_j \times p$ design matrix for the unknown fixed parameters (including the intercept and predictors), $\bv{\beta}$ is a $p \times 1$ vector for the fixed effects, $\bv{Z_j}$ is a $n_j \times r$ design matrix for the random effects, $\bv{U_j}$ is a $r \times 1$ vector of the unknown random components (including the random intercept and random slopes), and $\bv{e_j}$ is a $n_j \times 1$  error vector. $\bv{U_j}$ and $\bv{e_j}$ are assumed to follow multivariate normality $\bv{T}$:
+\begin{equation}
+\begin{pmatrix}
+\bv{e_j} \\ \bv{U_j}
+\end{pmatrix}
+\sim
+\mathcal{N}
+\left[
+\begin{pmatrix}
+\bv{\rlap{0}/} \\ \bv{\rlap{0}/}
+\end{pmatrix}, 
+\begin{pmatrix}
+\bv{\Sigma} & \bv{\rlap{0}/} \\
+\bv{\rlap{0}/} & \bv{T}
+\end{pmatrix}
+\right]
+\end{equation}
+where $\bv{T}$ is the variance-covariance matrix of the random components, and assuming homoscedasticity, $\bv{\Sigma} = \sigma^2I$ is a scalar for $\sigma$ being the error variance. 
+
+Model\ \@ref(eq:mod-eq) implies five main assumptions: linearity, independence of errors, homoscedasticity, normality, and correct specification of the model. First, the model assumes the relationship between the predictors and outcome is linear. That is, the relationship between $\bv{X_j}$ and $\bv{y_j}$ is monotonically increasing, decreasing, or zero. This assumption can be relaxed with a non-linear multilevel model. 
+
+Second, the independence of errors assumption denotes that the errors are uncorrelated with the predictors at the cluster-level, i.e. $Cor(\bv{X_j}, \bv{e_j})=\bv{\rlap{0}/}$. Moreover, the homoscedasticity assumption requires that the error variances are equal across all values of the predictors. Heteroscedasticity, meaning unequal error variances, is a situation that the error variance of $\bv{y_j}$, given the values of $\bv{X_j} = \bv{x_j}$, depends $\bv{x_j}$. For example, in a model with age as a predictor, heteroscedasticity occurs when the error variance is different for participants at different age. Violation of homoscedasticity can result in biased estimation of the fixed effects and their standard errors, and hence erroneous statistical inferences [add citations]. 
+
+Fourth, the error and random components are assumed to be multivariate normally distributed. The presence of outliers or influential observations and skewness of the distributions can lead to violation of the multivariate normality assumption. If this assumption fails, the standard errors of the fixed effects are biased, resulting in inflated Type I error rate [add citations]. Finally, the estimates of model parameters are reasonable only if the model is correctly specified. Correct specification requires that the model includes relevant predictors, cluster means of participant-level predictors, and the random slope variance is non-zero.
