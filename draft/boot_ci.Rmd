@@ -2,10 +2,22 @@ In addition to obtain bias-corrected standard errors, bootstrapping is widely us
 
 ## Bootstrap normal CI
 
+If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmetric CI is $$[\hat \theta + z_{\frac{1}{2}}\hat{se}_N(\hat \theta), \hat \theta + z_{1-\frac{1}{2}}\hat{se}_N(\hat \theta)]$$, where $\hat \theta$ is the estimated parameter, and $\hat se_N (\hat \theta) = \sqrt{\hat \psi/n}$ is the estimator of the asymptotic standard deviation of $\hat \theta$. For bootstrap normal confidence interval, $\hat{se}_N$ is replaced with $\hat{se}_B$ [@leeden2008], the bootstrap estimator of the standard deviation of $\hat \theta$, $$[\hat \theta + z_{\frac{1}{2}}\hat{se}_B(\hat \theta), \hat \theta + z_{1-\frac{1}{2}}\hat{se}_B(\hat \theta)]$$.
+
 ## Hall's percentile/Percentile-t CI
+
+$$[2\hat{\theta} - \hat{H}^{-1}(1-\frac{1}{2}\alpha); 2\hat{\theta} - \hat{H}^{-1}(\frac{1}{2}\alpha)]$$
+$$[\hat \theta + \hat t_{\frac{1}{2}\alpha}\hat{se}_B(\hat \theta); \hat \theta + \hat t_{1-\frac{1}{2}\alpha}\hat{se}_B(\hat \theta)]$$
+
 
 ## Percentile CI
 
-## Studentized CI
+$$[\hat H^{-1}(\frac{1}{2}\alpha); \hat H^{-1}(1- \frac{1}{2}\alpha)]$$
+
+## Studentized CI/bootstrap-t CI
+
+
 
 ### Bias-Corrected and Bias-Corrected and accelerated CI
+
+$$[\hat H^{-1}(\Phi(z[\frac{1}{2}\alpha])); \hat H^{-1}(\Phi(z[1-\frac{1}{2}\alpha]))]$$

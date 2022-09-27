@@ -53,5 +53,7 @@ Goal of the illustrative example
 1. compare the ML/REML estimates with bootstrapped estimates (point estimates and SE table)
 2. model diagnostic?
 
+Residual bootstrap
 
+theoretical variance (default in bootmlm) and empirical variance. 
   
