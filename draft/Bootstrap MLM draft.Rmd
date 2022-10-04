@@ -93,9 +93,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Section III: Confidence Interval
 
-```{r child='boot_ci.Rmd'}
+```{r child='boot_ci1.Rmd'}
 
 ```
+
+
+<!-- ```{r child='boot_ci.Rmd'} -->
+
+<!-- ``` -->
 
 <!-- # Section IV: Illustrative Example -->
 
