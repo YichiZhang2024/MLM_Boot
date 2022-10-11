@@ -12,11 +12,11 @@ author:
   - name          : "Ernst-August Doelle"
     corresponding : yes
     affiliation   : "1,2"
-    role:
+    email         : "my@email.com"
 
   - name          : "Ernst-August Doelle"
+    corresponding : no    
     affiliation   : "1,2"
-    role:
 
 affiliation:
   - id            : "1"

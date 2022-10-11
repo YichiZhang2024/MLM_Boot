@@ -1,25 +1,25 @@
-We now describe the procedure of parametric bootstrap, residuals bootstrap, wild bootstrap and cases bootstrap in detail. A two-level random-effect model is used to illustrate these different types of bootstrap algorithms. 
+This section describes the procedure of parametric bootstrap, residuals bootstrap, wild bootstrap and cases bootstrap in detail. A two-level random-effect model is used to illustrate these different types of bootstrapping algorithms. 
 
 ## 1. Parametric bootstrap 
 
-The parametric bootstrap has the strongest assumption among all methods, as it assumes a correct function form and residual distributions [@leeden2008]. The level-1 residuals are assumed to follow a normal distribution, add equation here, and the level-2 residuals are assumed to follow a bivariate normal distribution, add equation here. The procedure for parameteric bootstrap is described below.
+The parametric bootstrap has the strongest assumption among all methods, as it assumes a correct function form and residual distributions [@leeden2008]. Specifically, the level-1 residuals are assumed to follow a normal distribution, $\epsilon_j \sim N(\rlap{0}/, \hat\sigma^2I_{n_j})$, and the level-2 residuals are assumed to follow a bivariate normal distribution, $U_j \sim N(\rlap{0}/, \hat \Omega)$. The procedure for parameteric bootstrap is described below.
 
 1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects.
-2. Draw level-2 residuals from a multivariate distribution.
-3. Draw level-1 residuals from a normal distribution.
-4. Generate the bootstrap samples, $y^*$, with $y^* = X_j\beta + Z_j\delta_j^* + \epsilon_j^*$.
+2. Draw level-2 residuals $U_j^*$ of size $J$ from a multivariate normal distribution.
+3. Draw level-1 residuals $\epsilon_j*$ of size $J$ from a normal distribution.
+4. Generate the bootstrap samples $y_j^*$, with $y_j^* = X_j\hat \beta + Z_jU_j^* + \epsilon_j^*$.
 5. Refit the two-level model to bootstrap data and obtain parameter estimates.
-6. Repeat steps 2-5 $B$ times and compute the bias-corrected estimates and standard errors. 
+6. Repeat steps 2-5 $B$ times and compute the bias-corrected estimates and bootstrap standard errors. 
 
 ## 2. Residuals bootstrap 
 
-Different from parametric bootstrap, residuals bootstrap does not assume the residuals follow certain distributions. However, the homoscedasticity of residuals still hold [@leeden2008]. The procedure for residuals bootstrap is similar to the parameteric bootstrap, except the residuals are not drawing from new distributions but from resampling the reflated empirical residuals of fitted models with replacement. The empirical residuals can be calculated by subtracting the predicted response from observed data [@goldstein2011]. Beacuse the sampling variance of empirical residuals $u_j$, $\epsilon_{ij}$ are smaller than $\sigma_{uj}$ and $\sigma$[@lai2021], these residuals are shrunken and will lead to biased results if directly used to draw new bootstrapped residuals. Thus, the first step is to reflate these shrunken residuals. 
+Different from parametric bootstrap, residuals bootstrap does not assume the residuals follow certain distributions. However, the homoscedasticity of residuals still hold [@leeden2008]. The procedure for residuals bootstrap is similar to the parameteric bootstrap, except the residuals are not drawing from new distributions but from resampling the reflated empirical residuals of fitted models with replacement. The empirical residuals can be calculated by subtracting the predicted response from observed data [@goldstein2011]. Beacuse the sampling variance of empirical level-2 residuals $\tilde u_{0_j}$, and level-1 residuals $\tilde \epsilon_{ij}$ are smaller than $\hat \tau$ and $\sigma^2$[@lai2021], these residuals are shrunken and will lead to biased results if used directly to draw new bootstrapped residuals. Thus, the first step is to reflate these shrunken residuals so that their sample variances match the estimated variance components. For level-2 residuals $\tilde u_{0_j}$, the empirical variance is $s_{\tilde u}^2 = \sum_{j=1}^{J} \tilde u_{0_j}/J$ and the reflated level-2 residuals can be computed as $\sqrt{\frac{\hat \tau}{s_{\tilde u}^2\tilde u_{0_j}}}$. Similarly, the reflated level-1 residuals can be computed as $\sqrt{\frac{\hat \sigma}{s_{\tilde \epsilon}^2\tilde \epsilon_{ij}}}$ where $s_{\tilde \epsilon}^2 = \sum_{j=1}^{J} \tilde \epsilon_{ij}/J$ is the empirical variance of level-1 residuals. 
 
 1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects. Note residuals from both levels need to be centered.
-2. Reflate the centered empirical residuals.
-3. Draw level-2 residuals from the reflated empirical residuals with replacement.
-4. Draw level-1 residuals from the reflated empirical residuals with replacement.
-5. Generate the bootstrap samples, $y^*$, with $y^* = X_j\beta + Z_j\delta_j^* + \epsilon_j^*$.
+2. Reflate the centered empirical residuals using the procedure described above.
+3. Draw level-2 residuals $U_j^*$ from the reflated empirical residuals with replacement.
+4. Draw level-1 residuals $\epsilon_{ij}$ from the reflated empirical residuals with replacement.
+5. Generate the bootstrap samples, $y^*$, with $y_j^* = X_j\hat\beta + Z_jU_j^* + \epsilon_j^*$.
 6. Refit the two-level model to bootstrap data and obtain parameter estimates.
 7. Repeat steps 3-6 $B$ times and compute the bias-corrected estimates and standard errors. 
 
