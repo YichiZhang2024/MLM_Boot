@@ -98,9 +98,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-<!-- ```{r child='boot_ci.Rmd'} -->
+```{r child='boot_ci.Rmd'}
 
-<!-- ``` -->
+```
 
 <!-- # Section IV: Illustrative Example -->
 

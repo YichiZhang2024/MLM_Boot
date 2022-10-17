@@ -1,27 +1,33 @@
-In addition to obtain bias-corrected standard errors, bootstrapping is widely used for computing confidence intervals (CI). In this section, we will discuss different types of two-sided bootstrap confidence intervals. Assume the true value of parameter $\theta$ is $\theta_0$, and the probability of the confidence intervals containing the $\theta_0$ is $1-\alpha$. Let $\Phi(z)$ be the standard normal distribution, then the $z_\alpha$ represents the $\alpha$th quantile of the distribution such that $z_\alpha = \Phi^{-1}(\alpha)$. The distribution function of the estimator $\hat \theta$ is $H(\theta) = \text{Pr}(\hat\theta \leq\theta)$. The consistent estimator of this distribution obtained from $b = 1,..., B$ bootstrap replications $\theta_b^*$ is $\hat H(\theta) = \frac{\#\{b:\theta_B^* \leq \theta\}}{B}$.
+In addition to obtain bias-corrected standard errors, bootstrapping is widely used for computing confidence intervals (CI). In this section, we will discuss different types of two-sided bootstrap confidence intervals. Assume the true value of parameter $\theta$ is $\theta_0$, and the probability of the confidence intervals containing the $\theta_0$ is $1-\alpha$. Let $\Phi(z)$ be the standard normal distribution, then $z_\alpha$ represents the $\alpha$th quantile of the distribution such that $z_\alpha = \Phi^{-1}(\alpha)$. The distribution function of the estimator $\hat \theta$ is $H(\theta) = \text{Pr}(\hat\theta \leq\theta)$. The consistent estimator of this distribution obtained from $b = 1,..., B$ bootstrap replications $\theta_b^*$ is $\hat H(\theta) = \frac{\#\{b:\theta_B^* \leq \theta\}}{B}$.
 
 ## Bootstrap normal CI
 
-If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmetric CI is $$[\hat \theta + z_{\frac{1}{2}}\hat{se}_N(\hat \theta), \hat \theta + z_{1-\frac{1}{2}}\hat{se}_N(\hat \theta)]$$, where $\hat \theta$ is the estimated parameter, and $\hat se_N (\hat \theta) = \sqrt{\hat \psi/n}$ is the estimator of the asymptotic standard deviation of $\hat \theta$. For bootstrap normal confidence interval, $\hat{se}_N$ is replaced with $\hat{se}_B$ [@leeden2008], the bootstrap estimator of the standard deviation of $\hat \theta$, $$[\hat \theta + z_{\frac{1}{2}}\hat{se}_B(\hat \theta), \hat \theta + z_{1-\frac{1}{2}}\hat{se}_B(\hat \theta)].$$
+If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmetric CI is $$[\hat \theta - z_{1-\frac{\alpha}{2}}\hat{se}_N(\hat \theta), \hat \theta + z_{1-\frac{\alpha}{2}}\hat{se}_N(\hat \theta)],$$ where $\hat \theta$ is the estimated parameter, and $\hat se_N (\hat \theta) = \sqrt{\hat \psi/n}$ is the estimator of the asymptotic standard deviation of $\hat \theta$. For bootstrap normal confidence interval, $\hat{se}_N$ is replaced with $\hat{se}_B$ [@leeden2008], the bootstrap estimator of the standard deviation of $\hat \theta$, $$[\hat \theta - z_{1-\frac{\alpha}{2}}\hat{se}_B(\hat \theta), \hat \theta + z_{1-\frac{\alpha}{2}}\hat{se}_B(\hat \theta)].$$
 
 ## Hall's percentile
 
-Hall's percentile CI uses quantiles of the bootstrapped distribution instead of the normal distribution to obtain more accurate results when $\hat \theta$ does not follow a normal distribution [@hall1992; @leeden2008]. For bootstrap distribution $\hat \theta - \theta *$, $\alpha$ and $1-\alpha/2$ quantiles can be computed by $\hat q_{\frac{1}{2}} = \hat \theta - \hat H^{-1}(\frac{1}{2}\alpha)$. Replacing the quantiles from the bootstrap distribution, the confidence interval for $\theta_0$ is $$[2\hat{\theta} - \hat{H}^{-1}(1-\frac{1}{2}\alpha); 2\hat{\theta} - \hat{H}^{-1}(\frac{1}{2}\alpha)].$$
+Hall's percentile CI uses quantiles of the bootstrapped distribution instead of the normal distribution to obtain more accurate results when $\hat \theta$ does not follow a normal distribution [@hall1992; @leeden2008]. For bootstrap distribution $\hat \theta - \theta^ *$, $\alpha$ and $1-\alpha/2$ quantiles can be computed by $\hat q_{\frac{1}{2}} = \hat \theta_T - \hat \theta^*_{T,\frac{1}{2}\alpha}$ and $\hat q_{1-\frac{1}{2}} = \hat \theta_T - \hat \theta^*_{T,1-\frac{1}{2}\alpha}$. Replacing the quantiles from the bootstrap distribution, the confidence interval for $\theta_0$ is $$[2\hat{\theta}_T - \hat \theta^*_{T,1-\frac{1}{2}\alpha}; 2\hat{\theta}_T - \hat \theta^*_{T,\frac{1}{2}\alpha}].$$
 
-## Percentile-t CI
+## bootstrap-t/Studentized CI
 
-Similar to Hall's percentile ci, percentile-t CI replaces the quantiles of the normal distribution by quantiles of the bootstrap distribution. The difference between percentile-t CI and Hall's percentile is percentile-t uses the boostrap distribution of $t* = (\hat \theta - \theta ^*)/se_B^*(\theta^*)$ [@davison1997; @leeden2008]. The percentile-t confidence interval can be obtained by replacing the $z_{\frac{1}{2}}$ and $z_{1- \frac{1}{2}}$ quantiles by $\hat t_{\frac{1}{2}\alpha}$ and $\hat t_{1-\frac{1}{2}\alpha},$
+Similar to Hall's percentile ci, bootstrap-t CI replaces the quantiles of the normal distribution by quantiles of the bootstrap distribution. The difference between bootstrap-t CI and Hall's percentile is bootstrap-t uses the boostrap distribution of $t* = (\hat \theta - \theta ^*)/se_B^*(\theta^*)$ [@davison1997; @leeden2008]. The bootstrap-t confidence interval can be obtained by replacing the $z_{\frac{1}{2}}$ and $z_{1- \frac{1}{2}}$ quantiles by $\hat t_{\frac{1}{2}\alpha}$ and $\hat t_{1-\frac{1}{2}\alpha},$
 $$[\hat \theta + \hat t_{\frac{1}{2}\alpha}\hat{se}_B(\hat \theta); \hat \theta + \hat t_{1-\frac{1}{2}\alpha}\hat{se}_B(\hat \theta)]$$
 
 ## Percentile CI
 
-Because $\hat H$ is a consistent estimator of the distribution function of $\hat \theta$ [@efron1982], quantiles from the $\hat H$ can be directly used to form confidence intervals of $\theta_0$. $$[\hat H^{-1}(\frac{1}{2}\alpha); \hat H^{-1}(1- \frac{1}{2}\alpha)]$$ Although this percentile CI does not assume asymptotic normality of $\hat \theta$, it has been found to generate biased results [@efron1993].
-
-
-## Studentized CI/bootstrap-t CI
-
-
+The percentile CI is formed by using quantiles directly from the bootstrapped distribution [@efron1982]. $$[\hat \theta_T^*(T,\frac{1}{2}\alpha); \hat H^{-1}(1- \frac{1}{2}\alpha)]$$ Although this percentile CI does not assume asymptotic normality of $\hat \theta$, it has been found to generate biased results [@efron1993].
 
 ### Bias-Corrected and Bias-Corrected and accelerated CI
 
-$$[\hat H^{-1}(\Phi(z[\frac{1}{2}\alpha])); \hat H^{-1}(\Phi(z[1-\frac{1}{2}\alpha]))]$$
+To correct the bias contained in the percentile CI, @efron1993 proposed the bias-corrected and accelerated ($BC_a$) CI. Instead of the $\alpha/2$ and $1-\alpha/2$ quantiles used in the percentile CI, $\alpha_L$ and $1-\alpha_U$ are selected to construct the $BC_a$ CI. @efron1993 defined $\alpha_L$ and $1-\alpha_U$ as
+$$
+  \begin{aligned}
+\alpha_L = \Phi(w + \frac{w + z_{\alpha/2}}{1- \alpha(w+z_{\alpha/2})}) \\
+\alpha_U = \Phi(w + \frac{w + z_{1-\alpha/2}}{1- \alpha(w+z_{1-\alpha/2})}).
+  \end{aligned}
+$$
+Here $\Phi$ is the cumulative density function for the standard normal distribution. In addition, $w$ is the bias correction for median, and $a$ is the acceleration (skewness) correction for the distribution of the estimator. These two correcting factors can be computed using formulas below:
+$$w = \Phi^{-1}(\frac{\sum_{r = 1}^{R} I_{\{\hat \theta_T^* < \theta_T\}}}{R+1})$$
+$$a = \frac{\sum_{j = 1}^{J}l_j^3}{6(\sum_{j = 1}^{J}l_j^2)^{3/2}}$$
+In the above equations, $I_{\{\hat \theta_T^* < \theta_T\}}$ is an indicator function, which equals 1 if $\theta_T^* < \theta_T$ and equals 0 otherwise. In addition, $l_j^3$ represents influence values and can be estimated by the grouped jackknife method that accounts for unequal group size [@leeden2008].  
+<!-- $$[\hat H^{-1}(\Phi(z[\frac{1}{2}\alpha])); \hat H^{-1}(\Phi(z[1-\frac{1}{2}\alpha]))]$$ -->
