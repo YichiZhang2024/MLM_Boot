@@ -1,0 +1,117 @@
+
+In this section, we illustrate the bootstrap approaches with the R packages *bootmlm* on an empirical example, which is an elementary school study by [@knuver1989; @knuver1993; @doolaard1999]. In particular, we will obtain confidence intervals for the fixed effects, intraclass correlations (ICC), and the variance exaplined by the fixed effects ($R^2$) using five bootstrap methods (a) parametric bootstraps, (b) residual bootstraps, (c) random effect block bootstrap, and (e) case bootstrap. 
+
+The data for this elementary school study are available in @snijjders2012. This study contains data for 3758 students, after a list-wise deletion of 258 students, from 211 schools with class sizes ranging between 5 and 36. Following the analyses in @snijders2012 (Chapter 8), we use a two-level model, with students nested within schools, to predict language test scores ($\text{lang}_{ij}$) with students' intelligence ($\text{IQ}_{ij}$), gender ($\text{gender}_{ij}$), and family's socio-economic status ($\text{SES}_{ij}$). The model equation is
+\begin{align}
+\begin{split}
+\text{Level 1: } & \text{lang}_{ij} = \beta_{0j} + \beta_{1j}\text{IQ}_{ij} + \beta_{2j}\text{SES}_{ij} + \beta_{3j} \text{IQ}_{ij} \times \text{SES}_{ij} + \beta_{4j} \text{gender}_{ij} + e_{ij}, \quad e_{ij} \sim N(0, \sigma^2)\\
+\text{Level 2: } & \beta_{0j} = \gamma_{00} + \gamma_{01} \text{school\_SES}_{j} + \gamma_{02} \text{school\_IQ}_{j} + \gamma_{03}\text{school\_IQ}\times\text{school\_SES} + u_{0j} \\
+& \beta_{1j} = \gamma_{10} + u_{1j}\\
+& \beta_{2j} = \gamma_{20} \\ 
+& \beta_{3j} = \gamma_{30} \\ 
+& \beta_{4j} = \gamma_{40} \\
+& \begin{pmatrix}
+u_{0j} \\ u_{1j}
+\end{pmatrix}\sim N\left(
+\begin{bmatrix}0 \\ 
+0 \end{bmatrix}, 
+\begin{bmatrix}\tau^2_{0}\\
+\tau_{01} & \tau^2_{1}
+\end{bmatrix}\right) \\
+\text{Combined: } & \text{lang}_{ij} = \gamma_{00} + \gamma_{10}\text{IQ}_{ij} + \gamma_{20}\text{SES}_{ij} + \gamma_{30}\text{IQ}_{ij} \times \text{SES}_{ij} + \gamma_{40}\text{gender}_{ij} + \\
+& \quad \gamma_{01} \text{school\_SES}_{j} + \gamma_{02} \text{school\_IQ}_j + \gamma_{03} \text{school\_SES}_j \times \text{school\_IQ}_j + \\
+& \quad u_{0j} + u_{1j} \text{IQ}_{ij} + e_{ij}, 
+(\#eq:sj-mod)
+\end{split}
+\end{align}
+where $\text{IQ}_j$ and $\text{school\_SES}_j$ are the average intelligence and SES of students within each school, respectively; $\gamma_{00}$ is the grand intercept of language scores; $\gamma_{01}$ and $\gamma_{02}$ are the school-level fixed effects of intelligence and SES, respectively; $\gamma_{03}$ is the school-level interaction between intelligence and SES; $\gamma_{10}$ and $\gamma_{20}$ are the student-level fixed effects of intelligence and SES, respectively; $\gamma_{30}$ is the student-level interaction between intelligence and SES; $u_{0j}$ is the random effect from the grand intercept; and $u_{1j}$ is the random effect from the student-level intelligence. For reproducibility, we use the following syntax to download and import the dataset from the website of @snijders2012 to our local R environment. 
+
+\singlespacing
+
+```{r}
+temp <- tempfile()
+download.file("https://www.stats.ox.ac.uk/~snijders/mlbook2_r_dat.zip", temp)
+sj_dat <- read.table(unz(temp, "mlbook2_r.dat"), header = TRUE)
+```
+
+\doublespacing
+
+The `bootmlm` R package is available on github and can be installed using the following command:
+
+\singlespacing
+
+```{r eval=FALSE}
+remotes::install_github("marklhc/bootmlm")
+```
+
+\doublespacing
+
+We begin by loading the required R packages, including *lme4*, which performs multilevel analysis, and *MuMIn*, which will be used to obtain the effect size estimate. If some of the packages have not been installed locally, we can install them from CRAN using the command `install.packages()`. 
+
+\singlespacing
+
+```{r}
+library(lme4)
+library(bootmlm)
+library(MuMIn)
+```
+
+\doublespacing
+
+In the following, we perform two models in *lme4*: (a) the null model, also known as the unconditional model, which has no predictors, and (b) the final model in @snijders2012, as shown in Model\ \@ref(eq:sj-mod). The null model will be used to compute the unconditional ICC; the final model will be used to obtain the fixed effects and variance explained by the fixed effects. 
+
+\singlespacing
+
+```{r}
+# unconditional model
+mod_0 <- lmer(langPOST ~ (1 | schoolnr), data = sj_dat)
+# final model
+mod_f <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses + (IQ_verb | schoolnr), 
+              data = sj_dat)
+```
+
+\doublespacing
+
+We first define a function that takes the null and final models and computes the fixed effects (e.g., $\gamma_{00}, \gamma_{01}$), ICC, and the variance explained by the fixed effects. This function will be used to perform bootstrapping, which requires intensive computation, and thus we use the operator `@` to more efficiently extract estimates from an `lme4` model object. 
+
+\singlespacing
+
+```{r}
+pars <- function(mod_0, mod_f) {
+  fix_eff <- mod_f@beta # fixed effects
+  icc <- 1 / (1 + mod_0@theta^(-2)) # intraclass correlation
+  rsq <- MuMIn::r.squaredGLMM(mod_f)[1] # effect size R^2
+  c(fix_eff, icc, rsq)
+}
+```
+
+The parameter estimates from the two models are shown as follows:
+
+\doublespacing
+
+```{r}
+out <- pars(mod_0, mod_f)
+names(out) <- c(names(fixef(mod_full)), "ICC", "Rsq")
+out
+```
+
+
+## Assumption Checking
+
+## Parametric Bootstrap
+
+## Residual Bootstrap
+
+## Random Effect Block Bootstrap
+
+## Case Bootstrap
+
+
+## Bootstrap CI With Transformation
+
+* Use R^2 as an example
+
+* Cite the paper for ICC
+
+
+

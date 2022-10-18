@@ -91,6 +91,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
+## Illustration
+
+```{r child = 'illustration.Rmd'}
+
+```
+
+
 <!-- # Section III: Confidence Interval -->
 
 <!-- ```{r child='boot_ci.Rmd'} -->
