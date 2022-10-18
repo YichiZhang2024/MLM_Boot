@@ -6,9 +6,9 @@ T = \frac{\bar X - \mu_0}{se},
 \end{equation}
 where $\bar X = \frac{1}{n}\sum_i^n X_i$ is the sample mean, $\mu_0$ is the null value of the mean, $se=s/\sqrt{n}$ is the standard error of the mean, and $s$ is the sample standard deviation. If normality holds, $T$ has a symmetric distribution, and the 95% confidence interval for $\bar X$ is 
 \begin{equation}
-[\bar X-t_{u} se, \bar X - t_{\ell} se],  
+[\bar X-t_{1-\alpha/2} se, \bar X - t_{\alpha/2} se],  
 \end{equation}
-where $t_\ell{}$ and $t_u$ are the .025 and .975 quantiles of $T$. 
+where $t_{1-\alpha/2}$ and $t_{\alpha/2}$ are the $1-\alpha/2$ and $t_{\alpha/2}$ quantiles of $T$. 
 
 However, our data has a skewed distribution and violates the normality assumption. To account for nonnormality, we perform bootstrapping in the following procedure [@wilcox2017; @efron1993]:
 
@@ -19,6 +19,6 @@ However, our data has a skewed distribution and violates the normality assumptio
 
 Based on the bootstrap samples, we can estimate the sample mean by taking the average of the bootstrap sample means, $\bar X^*=\frac{1}{B}\sum_b^BX^*_b$, and the standard error of the mean by taking the average of the bootstrap standard errors, $se^*=\frac{1}{B}\sum_b^Bse^*_b$. An approximate 95% confidence interval for the sample mean is
 \begin{equation}
-[\bar X^* - T^*_{(u)}se^*, \bar X^* - T^*_{(\ell)}se^*]
+[\bar X^* - t_{1-\alpha/2}^{*} se^{*}, \bar X^* - t_{\alpha/2}^{*} se^{*}]
 \end{equation}
-where $T^*_{(u)}$ and $T^*_{(\ell)}$ denote .025 and .975 quantiles of $T^*$, respectively. For example, if $B=1000$, $T^*_{(u)}= T_{(975)}$ and $T^*_{(\ell)} = T_{(25)}$.
+where $t^*_{1-\alpha/2}$ and $t^*_{1-\alpha/2}$ denote the the $1 - \alpha/2$ and $\alpha/2$ quantiles of the bootstrap distribution. For example, if $B=1000$ with at the significance level of $\alpha=.05$, $t^*_{1-\alpha/2}= t^*_{.025}$ and $t^*_{\alpha/2} = t^*_{.975}$.

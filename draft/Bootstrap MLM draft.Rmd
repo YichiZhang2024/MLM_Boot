@@ -102,6 +102,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
+## Section IV: Illustration
+
+```{r child = 'illustration.Rmd'}
+
+```
+
+
 <!-- # Section IV: Illustrative Example -->
 
 <!-- ```{r child='example.Rmd'} -->
