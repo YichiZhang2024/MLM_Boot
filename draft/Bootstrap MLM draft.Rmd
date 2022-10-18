@@ -12,11 +12,11 @@ author:
   - name          : "Ernst-August Doelle"
     corresponding : yes
     affiliation   : "1,2"
-    role:
+    email         : "my@email.com"
 
   - name          : "Ernst-August Doelle"
+    corresponding : no    
     affiliation   : "1,2"
-    role:
 
 affiliation:
   - id            : "1"
@@ -91,18 +91,23 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-## Illustration
+# Section III: Confidence Interval
+
+```{r child='boot_ci1.Rmd'}
+
+```
+
+
+```{r child='boot_ci.Rmd'}
+
+```
+
+## Section IV: Illustration
 
 ```{r child = 'illustration.Rmd'}
 
 ```
 
-
-<!-- # Section III: Confidence Interval -->
-
-<!-- ```{r child='boot_ci.Rmd'} -->
-
-<!-- ``` -->
 
 <!-- # Section IV: Illustrative Example -->
 
