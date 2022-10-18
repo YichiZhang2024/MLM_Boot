@@ -10,12 +10,12 @@ Hall's percentile CI uses quantiles of the bootstrapped distribution instead of 
 
 ## bootstrap-t/Studentized CI
 
-Similar to Hall's percentile ci, bootstrap-t CI replaces the quantiles of the normal distribution by quantiles of the bootstrap distribution. The difference between bootstrap-t CI and Hall's percentile is bootstrap-t uses the boostrap distribution of $t* = (\hat \theta - \theta ^*)/se_B^*(\theta^*)$ [@davison1997; @leeden2008]. The bootstrap-t confidence interval can be obtained by replacing the $z_{\frac{1}{2}}$ and $z_{1- \frac{1}{2}}$ quantiles by $\hat t_{\frac{1}{2}\alpha}$ and $\hat t_{1-\frac{1}{2}\alpha},$
+Similar to Hall's percentile CI, bootstrap-t CI replaces the quantiles of the normal distribution by quantiles of the bootstrap distribution. The difference between bootstrap-t CI and Hall's percentile is bootstrap-t uses the boostrap distribution of $t^* = (\hat \theta - \theta ^*)/se_B^*(\theta^*)$ [@davison1997; @leeden2008]. The bootstrap-t confidence interval can be obtained by replacing the $z_{\frac{1}{2}}$ and $z_{1- \frac{1}{2}}$ quantiles by $\hat t_{\frac{1}{2}\alpha}$ and $\hat t_{1-\frac{1}{2}\alpha},$
 $$[\hat \theta + \hat t_{\frac{1}{2}\alpha}\hat{se}_B(\hat \theta); \hat \theta + \hat t_{1-\frac{1}{2}\alpha}\hat{se}_B(\hat \theta)]$$
 
 ## Percentile CI
 
-The percentile CI is formed by using quantiles directly from the bootstrapped distribution [@efron1982]. $$[\hat \theta_T^*(T,\frac{1}{2}\alpha); \hat H^{-1}(1- \frac{1}{2}\alpha)]$$ Although this percentile CI does not assume asymptotic normality of $\hat \theta$, it has been found to generate biased results [@efron1993].
+The percentile CI is formed by using quantiles directly from the bootstrapped distribution [@efron1982]. $$[\hat \theta_{T,\frac{1}{2}\alpha}^*; \hat \theta_{T,1-\frac{1}{2}\alpha}^*]$$ Although this percentile CI does not assume asymptotic normality of $\hat \theta$, it has been found to generate biased results [@efron1993].
 
 ### Bias-Corrected and Bias-Corrected and accelerated CI
 
