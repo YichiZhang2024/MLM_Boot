@@ -40,7 +40,9 @@ boo_wil_icc <- readRDS("illustration_boo_res/boo_wil_icc.rds")
 
 In this section, we illustrate three bootstrap approaches (i.e., parametric, residual, and case) with the *bootmlm* R package and wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain confidence intervals for the fixed effects, intraclass correlations (ICC), and the variance explained by the fixed effects ($R^2$). 
 
-The empirical example is an  elementary school study by [@knuver1989; @knuver1993; @doolaard1999], whose data shared and used in @snijjders2012. This study contains data for 3758 students, after a list-wise deletion of 258 students, from 211 schools with class sizes ranging between 5 and 36. As shown in @snijders2012 (Chapter 8 and 10), the variables in the data appear to violate the assumptions of homoscesdaticity, and the intelligence variable appears to also violate the assumption of normality. 
+The empirical example is an  elementary school study by [@knuver1989; @knuver1993; @doolaard1999], whose data shared and used in @snijders2012. This study contains data for 3758 students, after a list-wise deletion of 258 students, from 211 schools with class sizes ranging between 5 and 36. As shown in @snijders2012 (Chapter 8 and 10), the variables in the data appear to violate the assumptions of homoscesdaticity, and the intelligence variable appears to also violate the assumption of normality. 
+
+<!-- YZ: It'll be helpful to mention which variables violate the homoscedasticity assumptions in snijders2012-->
 
 Following the analyses in @snijders2012 (Chapter 8), we use a two-level model, with students nested within schools, to predict language test scores ($\text{lang}_{ij}$) with students' intelligence ($\text{IQ}_{ij}$), gender ($\text{gender}_{ij}$), and family's socio-economic status ($\text{SES}_{ij}$). The model equation is
 \begin{align}
@@ -67,6 +69,7 @@ u_{0j} \\ u_{1j}
 \end{align}
 where $\text{IQ}_j$ and $\text{school\_SES}_j$ are the average intelligence and SES of students within each school, respectively; $\gamma_{00}$ is the grand intercept of language scores; $\gamma_{01}$ and $\gamma_{02}$ are the school-level fixed effects of intelligence and SES, respectively; $\gamma_{03}$ is the school-level interaction between intelligence and SES; $\gamma_{10}$ and $\gamma_{20}$ are the student-level fixed effects of intelligence and SES, respectively; $\gamma_{30}$ is the student-level interaction between intelligence and SES; $u_{0j}$ is the random effect from the grand intercept; and $u_{1j}$ is the random effect from the student-level intelligence. For reproducibility, we use the following syntax to download and import the dataset from the website of @snijders2012 to our local R environment. 
 
+<!-- YZ: Maybe add a sentence to explain the difference between $IQ_j$ and $school_IQ_j$? Something like we  -->
 \singlespacing
 
 ```{r}
@@ -90,6 +93,7 @@ remotes::install_github("marklhc/bootmlm")
 
 We begin by loading the required R packages, including *lme4*, which performs multilevel analysis, *boot*, which computes confidence intervals for bootstrap samples, and *MuMIn*, which computes $R^2$. If some of the packages have not been installed locally, we can install them from CRAN using the command `install.packages()`. 
 
+<!-- YZ: I think here we can mention the R packages we will use in this example, but we don't need to show how to install and load them?-->
 \singlespacing
 
 ```{r message=FALSE}
@@ -105,11 +109,11 @@ library(MuMIn)
 
 In the following, we perform two models in *lme4*: (a) the null model (the unconditional model) that has no predictors, given by
 \begin{align}
-\text{lang}_{ij} & = \gamma_{00} + u_{0j} + e_{ij} \\
+\text{lang}_{ij} = \gamma_{00} + u_{0j} + e_{ij} \\
 u_{0j} \sim N(0, \tau^2_{00}), \quad e_{ij} \sim N(0, \sigma^2), 
 \end{align}
 and (b) the final model in @snijders2012, as shown in Model\ \@ref(eq:sj-mod). We will compute ICC, defined as $\frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$, based on the null model and obtain the fixed effects and variance explained by the fixed effects based on the final model. 
-
+<!-- YZ: We need to double check the consistency of symbols and equations once we finish the chapter -->
 \singlespacing
 
 ```{r}
@@ -123,7 +127,6 @@ mod_f <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses + (IQ_verb | school
 \doublespacing
 
 We first define two functions, `fixef_rsq()` which takes the final model to compute the fixed effects and $R^2$, and `icc()` which takes the null model to compute ICC. These functions will be used to perform bootstrapping, which requires intensive computation, and thus we use the operator `@` to more efficiently extract the parameter coefficients from an `lme4` model object. 
-
 
 \singlespacing
 
@@ -186,7 +189,8 @@ boo_par_icc_ci <- boot.ci(boo_par_icc, type = c("norm", "basic", "perc"),
 
 ## Residual Bootstrap
 
-`bootmlm` implements three methods for residual bootstrap: (a) differentailly reflated residual bootstrap, (b) Carpenter-Goldstein-Rashbash's residual bootstrap [CGR; @carpenter2003], and (c) transformational residual bootstrap by @leeden2008. The residuals (denoted as $\tilde u$ and $\tilde e$), generally empirical Bayes estimates, are shrinkage parameters and have sampling variabilities much smaller than the population random effects, $u$ and $e$. These methods for residual bootstrap accounts for the small sampling variabilities by rescaling $\tilde u$ and $\tilde e$. The transformational residual bootstrap is particular useful for bounded parameters, such as ICC and $R^2$. Here we demonstrate the first two methods and discuss the transformational residual bootstrap in a separate subsection. 
+`bootmlm` implements three methods for residual bootstrap: (a) differentially reflated residual bootstrap, (b) Carpenter-Goldstein-Rashbash's residual bootstrap [CGR; @carpenter2003], and (c) transformational residual bootstrap by @leeden2008. The residuals (denoted as $\tilde u$ and $\tilde e$), generally empirical Bayes estimates, are shrinkage parameters and have sampling variabilities much smaller than the population random effects, $u$ and $e$. These methods for residual bootstrap accounts for the small sampling variabilities by rescaling $\tilde u$ and $\tilde e$. The transformational residual bootstrap is particular useful for bounded parameters, such as ICC and $R^2$. Here we demonstrate the first two methods and discuss the transformational residual bootstrap in a separate subsection. 
+<!-- YZ: I only described a general idea of reflating residuals in section III. I'll add some additional details of these three types of reflations -->
 
 The first residual bootstrap method rescales $\tilde u$ and $\tilde e$ to match their sampling variabilities with those of $u$ and $e$. The second method, CGR, rescales the sample covariance matrix of the realized values of the residuals to match the model-implied variance components. To perform the two residual bootstrap methods, specify `type = "residual"` and `type = "residual_cgr"`, respectively, in `bootmlm::bootstrap_mer`. 
 

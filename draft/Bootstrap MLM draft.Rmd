@@ -111,12 +111,6 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
 
-<!-- # Section IV: Illustrative Example -->
-
-<!-- ```{r child='example.Rmd'} -->
-
-<!-- ``` -->
-
 \newpage
 
 # References
