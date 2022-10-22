@@ -30,5 +30,5 @@ $$
 Here $\Phi$ is the cumulative density function for the standard normal distribution. In addition, $w$ is the bias correction for median, and $a$ is the acceleration (skewness) correction for the distribution of the estimator. These two correcting factors can be computed using formulas below:
 $$w = \Phi^{-1}(\frac{\sum_{r = 1}^{R} I_{\{\hat \theta_T^* < \theta_T\}}}{R+1})$$
 $$a = \frac{\sum_{j = 1}^{J}l_j^3}{6(\sum_{j = 1}^{J}l_j^2)^{3/2}}$$
-In the above equations, $I_{\{\hat \theta_T^* < \theta_T\}}$ is an indicator function, which equals 1 if $\theta_T^* < \theta_T$ and equals 0 otherwise. In addition, $l_j^3$ represents influence values and can be estimated by the grouped jackknife method that accounts for unequal group size [@leeden2008].  
+In the above equations, $I_{\{\hat \theta_T^* < \theta_T\}}$ is an indicator function, which equals 1 if $\theta_T^* < \theta_T$ and equals 0 otherwise. In addition, $l_j^3$ represents influence values and can be estimated by the grouped jackknife method that accounts for unequal group size [@leeden2008; @lai2021].  
 <!-- $$[\hat H^{-1}(\Phi(z[\frac{1}{2}\alpha])); \hat H^{-1}(\Phi(z[1-\frac{1}{2}\alpha]))]$$ -->
