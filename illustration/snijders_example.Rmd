@@ -1,0 +1,765 @@
+---
+title: "Snijders Example for Bootstrap"
+author: "Yichi Zhang, Winnie Wing-Yee Tse"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    toc: TRUE
+    toc_depth: 3
+---
+
+TODO:
+
+- [X] Add ICC, R^2
+- [ ] Add wild bootstrap
+- [ ] Add graphs for heteroscedasticity
+- [ ] Write a function that outputs all the things (including all fixed effects) we need 
+    * beware of the CI (need to specify the index)
+- [ ] Studentized CI with the fixed effect (last section)
+
+- Transformed ICC, R^2
+    * Blog post: https://quantscience.rbind.io/2022/05/12/confidence-intervals-for-multilevel-r-squared/
+    * https://onlinelibrary.wiley.com/doi/10.1002/sim.1643
+    * Ukoumunne et al. (2003, eq 6)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+comma <- function(x) format(x, digits = 4, big.mark = ",")
+```
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(bootmlm)
+library(broom.mixed)
+library(CR2)
+library(lmeresampler)
+# library()
+```
+
+
+```{r}
+temp <- tempfile()
+download.file("https://www.stats.ox.ac.uk/~snijders/mlbook2_r_dat.zip", temp)
+sj_dat <- read.table(unz(temp, "mlbook2_r.dat"), header = TRUE)
+```
+
+
+# Assumption checking
+
+```{r}
+mmps_lmer <- function(object) {
+  plot_df <- object@frame
+  form <- formula(object)
+  xvar <- attr(attr(plot_df, "terms"), "varnames.fixed")[-1]
+  plot_df$.fitted_x <- fitted(object)
+  plot_df$.fitted <- plot_df$.fitted_x
+  plot_df$.rowid <- seq_len(nrow(plot_df))
+  plot_df_long <- reshape(plot_df, direction = "long",
+                          varying = c(xvar, ".fitted_x"),
+                          v.names = "xvar",
+                          idvar = ".rowid")
+  plot_df_long$varname <- rep(c(xvar, ".fitted"),
+                              each = nrow(plot_df))
+  ggplot(
+    data = plot_df_long,
+    aes_string(x = "xvar", y = paste(form[[2]]))
+  ) +
+    geom_point(size = 0.5, alpha = 0.3) +
+    geom_smooth(aes(col = "data"), se = FALSE) +
+    geom_smooth(aes(y = .fitted, col = "model"),
+      linetype = "dashed", se = FALSE
+    ) +
+    facet_wrap(~ varname, scales = "free_x") +
+    labs(color = NULL, x = NULL) +
+    scale_color_manual(values = c("data" = "blue",
+                                  "model" = "red")) +
+    theme(legend.position = "bottom")
+}
+```
+
+## Normality
+
+```{r cache=TRUE}
+m0 <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses + (1 | schoolnr), 
+           data = sj_dat)
+mmps_lmer(m0)
+```
+
+```{r cache=TRUE}
+m1 <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses + (IQ_verb | schoolnr), 
+           data = sj_dat)
+mmps_lmer(m1)
+```
+
+# Heteroscedasticity
+
+```{r}
+ncvMLM(lmer(langPOST ~ IQ_verb + (1 | schoolnr), data = sj_dat))
+ncvMLM(lmer(langPOST ~ ses + (1 | schoolnr), data = sj_dat))
+ncvMLM(lmer(langPOST ~ sex + (1 | schoolnr), data = sj_dat))
+ncvMLM(lmer(langPOST ~ sch_iqv + (1 | schoolnr), data = sj_dat))
+ncvMLM(lmer(langPOST ~ sch_ses + (1 | schoolnr), data = sj_dat))
+```
+
+```{r}
+ncvMLM(lmer(langPOST ~ IQ_verb * ses + (1 | schoolnr), 
+            data = sj_dat))
+ncvMLM(lmer(langPOST ~ sch_iqv * sch_ses + (1 | schoolnr), 
+            data = sj_dat))
+ncvMLM(lmer(langPOST ~ IQ_verb * ses + sex + sch_iqv * sch_ses + (1 | schoolnr), 
+            data = sj_dat))
+```
+
+
+# Bootstrapping for Fixed Effect
+
+```{r}
+fix_eff <- function(x) x@beta[2]
+fix_eff(m1)
+```
+
+
+## Parametric Bootstrap
+
+We can run parametric bootstrap, which essentially call the `lme4::bootMer()` 
+function. It's usually recommended to have a large number of bootstrap samples
+($R$), especially for CIs with higher confidence levels. For illustrative 
+purpose I will use $R = 999$, but in general 1,999 or more is recommended
+
+```{r cache=TRUE}
+system.time(
+  boo_par <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "parametric")
+)
+boo_par
+```
+
+```{r cache=TRUE}
+## using lmeresampler package
+system.time(
+  lmer_par <- parametric_bootstrap(m1, .f = fix_eff, B = 999)
+)
+summary(lmer_par)
+```
+
+```{r}
+plot(lmer_par, "IQ_verb")
+plot(lmer_par, "ses")
+plot(lmer_par, "sex")
+plot(lmer_par, "sch_iqv")
+plot(lmer_par, "sch_ses")
+```
+
+As you can see, the *SE* for sex is estimated to be `r sd(boo_par$t)` with
+parametric bootstrap. 
+
+### Confidence interval
+
+With parametric bootstrap there are three ways to construct confidence 
+intervals via the `boot.ci()` function from the `boot` package: normal, 
+basic, and percentile. We can use the following function:
+
+```{r}
+boo_par_ci <- boot::boot.ci(boo_par, type = c("norm", "basic", "perc"), 
+                            index = 1L)
+boo_par_ci
+print(lmer_par, ci = TRUE)
+confint(lmer_par, method = "perc", level = 0.95)
+```
+
+## Residual Bootstraps
+
+Whereas parametric bootstrap resamples from independent normal distributions, 
+residual bootstrap samples the residuals. Therefore, residual bootstrap is 
+expected to be more robust to non-normality. `bootmlm` implements three methods
+for residual bootstrap: differentially reflated residual bootstrap, 
+Carpenter-Goldstein-Rashbash's residual bootstrap (CGR; Carpenter et al., 2003),
+and transformational residual bootstrap by van der Leeden, Meijer, and Busin 
+(2008). They are all motivated by the fact that the residuals, generally 
+empirical bayes estimates (denoted as $\tilde u$ and $\tilde e$), are shrinkage
+estimates and have sampling variabilities much smaller than the population
+random effects, $u$ and $e$.
+
+The first residual bootstrap rescale $\tilde u$ and $\tilde e$ so that their
+sampling variabilities match those of $u$ and $e$ as implied by the model 
+estimates. This can be obtained by 
+
+```{r cache=TRUE}
+system.time(
+  boo_res <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "residual")
+)
+boo_res
+```
+
+```{r cache=TRUE}
+## using lmeresampler package
+system.time(
+  lmer_resid <- resid_bootstrap(m1, .f = fix_eff, B = 199)
+)
+summary(lmer_resid)
+confint(lmer_resid, method = "prec", level = 0.95)
+```
+
+As you can see, the *SE* for sex is estimated to be `r sd(boo_res$t)` with
+residual bootstrap. 
+
+The second method, CGR, rescale the sample covariance matrix of the 
+*realized values* of the residuals to match the model-implied variance 
+components. This can be obtained by 
+
+
+```{r cache=TRUE}
+system.time(
+  boo_cgr <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "residual_cgr")
+)
+boo_cgr
+```
+
+The *SE* is estimated to be `r sd(boo_cgr$t)` with CGR bootstrap. 
+
+The third method first transforms the OLS residuals, $\hat r_{ij} = y_{ij} -
+\boldsymbol{x}_{ij} \hat{\boldsymbol{\beta}}$, by the inverse of cholesky
+factor, $\boldsymbol{L}$, of the model-implied covariance matrix of
+$\boldsymbol{y}$, $\hat{\boldsymbol{V}}$, so that theoretically 
+$\boldsymbol{L}^{-1} (\boldsymbol{y} - \boldsymbol{X \beta})$ should be 
+independent and identically distributed. However, as the true sampling variance
+of $\hat r_{ij}$ is not $\boldsymbol{V}$, I also provide the option
+`corrected_trans = TRUE` to do the transformation using the theoretically
+sampling variability of $\hat r_{ij}$.
+
+```{r cache=TRUE}
+# Transformation according to V
+system.time(
+  boo_tra <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "residual_trans"))
+boo_tra
+# Transformation according to the sampling variance of r
+system.time(
+  boo_trac <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "residual_trans", 
+                            corrected_trans = TRUE))
+boo_trac
+```
+
+The *SE* is estimated to be `r sd(boo_tra$t)` and `r sd(boo_trac$t)` with
+and without corrections with the transformational residual bootstrap. 
+
+
+### Confidence interval
+
+With residual bootstrap methods there are four ways to construct confidence 
+intervals via the `boot.ci()` function from the `boot` package, with the 
+addition of the bias-corrected and accelarted bootstrap (BCa). We can use the
+following function:
+
+```{r, cache=TRUE}
+# First need to compute the influence values
+inf_val <- empinf_mer(m1, fix_eff, index = 1)
+# Residual bootstrap
+boo_res_ci <- boot::boot.ci(boo_res, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_res_ci
+# CGR
+boo_cgr_ci <- boot::boot.ci(boo_cgr, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_cgr_ci
+# Transformational (no correction)
+boo_tra_ci <- boot::boot.ci(boo_tra, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_tra_ci
+# Transformational (with correction)
+boo_trac_ci <- boot::boot.ci(boo_trac, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_trac_ci
+```
+
+
+## Random Effect Block Bootstrap
+
+```{r, cache=TRUE}
+system.time(
+  boo_reb <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "reb"))
+boo_reb
+system.time(
+  boo_rebs <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "reb", 
+                            reb_scale = TRUE))
+boo_rebs
+## using lmeresampler package
+lmer_reb1 <- reb_bootstrap(m1, .f = fix_eff, B = 199, reb_type = 0)
+## using lmeresampler package
+lmer_reb2 <- reb_bootstrap(m1, .f = fix_eff, B = 199, reb_type = 1)
+## using lmeresampler package
+# lmer_reb3 <- parametric_bootstrap(m1, .f = fix_eff, B = 199, reb_type = 2)
+```
+
+
+### Confidence interval
+
+With case bootstrap the supported CIs are: normal, basic, and percentile, and 
+BCa. We can use the following function:
+
+```{r, cache=TRUE}
+# Only sampling clusters
+boo_reb_ci <- boot::boot.ci(boo_reb, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_reb_ci
+# Transformational (with correction)
+boo_rebs_ci <- boot::boot.ci(boo_rebs, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_rebs_ci
+```
+
+## Case Bootstrap
+
+With case bootstrap, the observed *cases* are sampled with replacement. 
+However, because of the multilevel structure, we need to resample the 
+clusters. Optionally, we can then resample the cases within each cluster
+(using the `lv1_resample = TRUE` argument). Unlike the parametric and 
+residual bootstrap methods, currently `bootmlm` only support the case bootstrap 
+with two levels. 
+
+```{r, cache=TRUE}
+system.time(
+  boo_cas <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "case"))
+boo_cas
+system.time(
+  boo_cas1 <- bootstrap_mer(m1, fix_eff, nsim = 999L, type = "case", 
+                            lv1_resample = TRUE))
+boo_cas1
+## using lmeresampler package
+lmer_case <- case_bootstrap(m1, .f = fix_eff, B = 999, resample = c(FALSE, TRUE))
+```
+
+
+The *SE* for the ICC is estimated to be `r sd(boo_cas$t)` (only sampling 
+clusters) and `r sd(boo_cas1$t)` (sampling also cases) with case bootstrap. 
+
+### Confidence interval
+
+With case bootstrap the supported CIs are: normal, basic, and percentile, and 
+BCa. We can use the following function:
+
+```{r, cache=TRUE}
+# Only sampling clusters
+boo_cas_ci <- boot::boot.ci(boo_cas, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_cas_ci
+# Transformational (with correction)
+boo_cas1_ci <- boot::boot.ci(boo_cas1, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_cas1_ci
+```
+
+
+
+## Summary
+
+```{r}
+boo_names <- c("parametric", "residual", "cgr", "trans", 
+               "trans (cor)", "REB", "REB (scaled)", 
+               "case (cluster)", "case (c + i)")
+boo_lst <- list(boo_par, boo_res, boo_cgr, boo_tra, boo_trac, 
+                boo_reb, boo_rebs, boo_cas, boo_cas1)
+boo_ci_lst <- list(boo_par_ci, boo_res_ci, boo_cgr_ci, boo_tra_ci, 
+                   boo_trac_ci, boo_reb_ci, boo_rebs_ci, boo_cas_ci, 
+                   boo_cas1_ci)
+get_ci <- function(boo_ci, type) {
+  paste0("(", paste(comma(tail(boo_ci[[type]][1, ], 2L)), collapse = ", "), ")")
+}
+
+tab <- tibble(boot_type = boo_names, boo = boo_lst, boo_ci = boo_ci_lst) %>%
+  mutate(sd = map_chr(boo, ~ comma(sd(.x$t))), 
+         normal = map_chr(boo_ci, ~ get_ci(.x, "normal")), 
+         basic = map_chr(boo_ci, ~ get_ci(.x, "basic")), 
+         percentile = map_chr(boo_ci, ~ get_ci(.x, "percent")), 
+         bca = map_chr(boo_ci, ~ get_ci(.x, "bca"))) %>%
+  select(-boo, -boo_ci)
+knitr::kable(
+  tab
+)
+```
+
+
+# Bootstrapping for ICC
+
+```{r}
+m_null <- lmer(langPOST ~ (1 | schoolnr), 
+               data = sj_dat)
+```
+
+The intraclass correlation is defined as
+$$\rho = \frac{\tau}{\tau + \sigma^2} = \frac{1}{1 + \sigma^2 / \tau} 
+  = \frac{1}{1 + \theta^{-2}},$$
+where $\theta = \sqrt{\tau} / \sigma$ is the relative cholesky factor for the
+random intercept term used in `lme4`. Therefore, we can estimate the ICC as:
+
+```{r}
+(icc0 <- 1 / (1 + getME(m_null, "theta")^(-2)))
+```
+
+So the ICC is quite large for this data set. However, it is important to also
+quantify the uncertainty of a point estimate. Although there are analytic 
+methods to obtain *SE* and CI for ICC, a reliable alternative is to do 
+bootstrapping. We first define the function for computing the test statistic:
+
+```{r}
+icc <- function(x) 1 / (1 + x@theta^(-2))
+icc(m_null)
+```
+
+With the `bootmlm`
+package we can perform various bootstrap methods using the `bootstrap_mer()`
+function.
+
+## Parameteric Bootstrap
+
+We can run parametric bootstrap, which essentially call the `lme4::bootMer()` 
+function. It's usually recommended to have a large number of bootstrap samples
+($R$), especially for CIs with higher confidence levels. For illustrative 
+purpose I will use $R = 999$, but in general 1,999 or more is recommended
+
+```{r cache=TRUE}
+system.time(
+  boo_par <- bootstrap_mer(m_null, icc, nsim = 999L, type = "parametric")
+)
+boo_par
+```
+
+As you can see, the *SE* for the ICC is estimated to be `r sd(boo_par$t)` with
+parametric bootstrap. 
+
+### Confidence interval
+
+With parametric bootstrap there are three ways to construct confidence 
+intervals via the `boot.ci()` function from the `boot` package: normal, 
+basic, and percentile. We can use the following function:
+
+```{r}
+boo_par_ci <- boot::boot.ci(boo_par, type = c("norm", "basic", "perc"), 
+                            index = 1L)
+boo_par_ci
+```
+
+## Residual Bootstraps
+
+Whereas parametric bootstrap resamples from independent normal distributions, 
+residual bootstrap samples the residuals. Therefore, residual bootstrap is 
+expected to be more robust to non-normality. `bootmlm` implements three methods
+for residual bootstrap: differentially reflated residual bootstrap, 
+Carpenter-Goldstein-Rashbash's residual bootstrap (CGR; Carpenter et al., 2003),
+and transformational residual bootstrap by van der Leeden, Meijer, and Busin 
+(2008). They are all motivated by the fact that the residuals, generally 
+empirical bayes estimates (denoted as $\tilde u$ and $\tilde e$), are shrinkage
+estimates and have sampling variabilities much smaller than the population
+random effects, $u$ and $e$.
+
+The first residual bootstrap rescale $\tilde u$ and $\tilde e$ so that their
+sampling variabilities match those of $u$ and $e$ as implied by the model 
+estimates. This can be obtained by 
+
+```{r, cache=TRUE}
+system.time(
+  boo_res <- bootstrap_mer(m_null, icc, nsim = 999L, type = "residual"))
+boo_res
+```
+
+As you can see, the *SE* for the ICC is estimated to be `r sd(boo_res$t)` with
+residual bootstrap. 
+
+The second method, CGR, rescale the sample covariance matrix of the 
+*realized values* of the residuals to match the model-implied variance 
+components. This can be obtained by 
+
+```{r, cache=TRUE}
+system.time(
+  boo_cgr <- bootstrap_mer(m_null, icc, nsim = 999L, type = "residual_cgr"))
+boo_cgr
+```
+
+The *SE* is estimated to be `r sd(boo_cgr$t)` with CGR bootstrap. 
+
+The third method first transforms the OLS residuals, $\hat r_{ij} = y_{ij} -
+\boldsymbol{x}_{ij} \hat{\boldsymbol{\beta}}$, by the inverse of cholesky
+factor, $\boldsymbol{L}$, of the model-implied covariance matrix of
+$\boldsymbol{y}$, $\hat{\boldsymbol{V}}$, so that theoretically 
+$\boldsymbol{L}^{-1} (\boldsymbol{y} - \boldsymbol{X \beta})$ should be 
+independent and identically distributed. However, as the true sampling variance
+of $\hat r_{ij}$ is not $\boldsymbol{V}$, I also provide the option
+`corrected_trans = TRUE` to do the transformation using the theoretically
+sampling variability of $\hat r_{ij}$.
+
+```{r, cache=TRUE}
+# Transformation according to V
+system.time(
+  boo_tra <- bootstrap_mer(m_null, icc, nsim = 999L, type = "residual_trans"))
+boo_tra
+# Transformation according to the sampling variance of r
+system.time(
+  boo_trac <- bootstrap_mer(m_null, icc, nsim = 999L, type = "residual_trans", 
+                            corrected_trans = TRUE))
+boo_trac
+```
+
+The *SE* is estimated to be `r sd(boo_tra$t)` and `r sd(boo_trac$t)` with
+and without corrections with the transformational residual bootstrap. 
+
+### Confidence interval
+
+With residual bootstrap methods there are four ways to construct confidence 
+intervals via the `boot.ci()` function from the `boot` package, with the 
+addition of the bias-corrected and accelarted bootstrap (BCa). We can use the
+following function:
+
+```{r, cache=TRUE}
+# First need to compute the influence values
+inf_val <- empinf_mer(m_null, icc, index = 1)
+# Residual bootstrap
+boo_res_ci <- boot::boot.ci(boo_res, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_res_ci
+# CGR
+boo_cgr_ci <- boot::boot.ci(boo_cgr, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_cgr_ci
+# Transformational (no correction)
+boo_tra_ci <- boot::boot.ci(boo_tra, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_tra_ci
+# Transformational (with correction)
+boo_trac_ci <- boot::boot.ci(boo_trac, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_trac_ci
+```
+
+## Random Effect Block Bootstrap
+
+```{r, cache=TRUE}
+system.time(
+  boo_reb <- bootstrap_mer(m_null, icc, nsim = 999L, type = "reb"))
+boo_reb
+system.time(
+  boo_rebs <- bootstrap_mer(m_null, icc, nsim = 999L, type = "reb", 
+                            reb_scale = TRUE))
+boo_rebs
+```
+
+
+### Confidence interval
+
+```{r, cache=TRUE}
+# Only sampling clusters
+boo_reb_ci <- boot::boot.ci(boo_reb, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_reb_ci
+# Transformational (with correction)
+boo_rebs_ci <- boot::boot.ci(boo_rebs, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_rebs_ci
+```
+
+
+## Case Bootstrap
+
+With case bootstrap, the observed *cases* are sampled with replacement. 
+However, because of the multilevel structure, we need to resample the 
+clusters. Optionally, we can then resample the cases within each cluster
+(using the `lv1_resample = TRUE` argument). Unlike the parametric and 
+residual bootstrap methods, currently `bootmlm` only support the case bootstrap 
+with two levels. 
+
+```{r, cache=TRUE}
+system.time(
+  boo_cas <- bootstrap_mer(m_null, icc, nsim = 999L, type = "case"))
+boo_cas
+system.time(
+  boo_cas1 <- bootstrap_mer(m_null, icc, nsim = 999L, type = "case", 
+                            lv1_resample = TRUE))
+boo_cas1
+```
+
+The *SE* for the ICC is estimated to be `r sd(boo_cas$t)` (only sampling 
+clusters) and `r sd(boo_cas1$t)` (sampling also cases) with case bootstrap. 
+
+### Confidence interval
+
+With case bootstrap the supported CIs are: normal, basic, and percentile, and 
+BCa. We can use the following function:
+
+```{r, cache=TRUE}
+# Only sampling clusters
+boo_cas_ci <- boot::boot.ci(boo_cas, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_cas_ci
+# Transformational (with correction)
+boo_cas1_ci <- boot::boot.ci(boo_cas1, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_cas1_ci
+```
+
+## Summary
+
+```{r}
+boo_names <- c("parametric", "residual", "cgr", "trans", 
+               "trans (cor)", "REB", "REB (scaled)", 
+               "case (cluster)", "case (c + i)")
+boo_lst <- list(boo_par, boo_res, boo_cgr, boo_tra, boo_trac, 
+                boo_reb, boo_rebs, boo_cas, boo_cas1)
+boo_ci_lst <- list(boo_par_ci, boo_res_ci, boo_cgr_ci, boo_tra_ci, 
+                   boo_trac_ci, boo_reb_ci, boo_rebs_ci, boo_cas_ci, 
+                   boo_cas1_ci)
+get_ci <- function(boo_ci, type) {
+  paste0("(", paste(comma(tail(boo_ci[[type]][1, ], 2L)), collapse = ", "), ")")
+}
+tab <- tibble(boot_type = boo_names, boo = boo_lst, boo_ci = boo_ci_lst) %>%
+  mutate(sd = map_chr(boo, ~ comma(sd(.x$t))), 
+         normal = map_chr(boo_ci, ~ get_ci(.x, "normal")), 
+         basic = map_chr(boo_ci, ~ get_ci(.x, "basic")), 
+         percentile = map_chr(boo_ci, ~ get_ci(.x, "percent")), 
+         bca = map_chr(boo_ci, ~ get_ci(.x, "bca"))) %>%
+  select(-boo, -boo_ci)
+knitr::kable(tab)
+```
+
+
+# Bootstrapping for R squared
+
+```{r}
+rsq <- function(x) MuMIn::r.squaredGLMM(x)[1]
+```
+
+## Parameteric Bootstrap
+
+```{r, cache=TRUE}
+system.time(
+  boo_par_rsq <- bootstrap_mer(m1, rsq, nsim = 999L, type = "parametric")
+)
+boo_par_rsq
+```
+
+### Confidence interval
+
+```{r}
+boo_par_ci <- boot::boot.ci(boo_par_rsq, type = c("norm", "basic", "perc"), 
+                            index = 1L)
+boo_par_ci
+```
+
+## Residual Bootstraps
+
+```{r, cache=TRUE}
+system.time(
+  boo_res <- bootstrap_mer(m1, rsq, nsim = 999L, type = "residual"))
+boo_res
+```
+
+```{r, cache=TRUE}
+system.time(
+  boo_cgr <- bootstrap_mer(m1, rsq, nsim = 999L, type = "residual_cgr"))
+boo_cgr
+```
+
+```{r, cache=TRUE}
+# Transformation according to V
+system.time(
+  boo_tra <- bootstrap_mer(m1, rsq, nsim = 999L, type = "residual_trans"))
+boo_tra
+# Transformation according to the sampling variance of r
+system.time(
+  boo_trac <- bootstrap_mer(m1, rsq, nsim = 999L, type = "residual_trans", 
+                            corrected_trans = TRUE))
+boo_trac
+```
+
+```{r, cache=TRUE}
+# First need to compute the influence values
+inf_val <- empinf_mer(m1, rsq, index = 1)
+# Residual bootstrap
+boo_res_ci <- boot::boot.ci(boo_res, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_res_ci
+# CGR
+boo_cgr_ci <- boot::boot.ci(boo_cgr, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_cgr_ci
+# Transformational (no correction)
+boo_tra_ci <- boot::boot.ci(boo_tra, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_tra_ci
+# Transformational (with correction)
+boo_trac_ci <- boot::boot.ci(boo_trac, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_trac_ci
+```
+
+## Random Effect Block Bootstrap
+
+```{r, cache=TRUE}
+system.time(
+  boo_reb <- bootstrap_mer(m1, rsq, nsim = 999L, type = "reb"))
+boo_reb
+system.time(
+  boo_rebs <- bootstrap_mer(m1, rsq, nsim = 999L, type = "reb", 
+                            reb_scale = TRUE))
+boo_rebs
+```
+
+### Confidence interval
+
+```{r, cache=TRUE}
+# Only sampling clusters
+boo_reb_ci <- boot::boot.ci(boo_reb, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_reb_ci
+# Transformational (with correction)
+boo_rebs_ci <- boot::boot.ci(boo_rebs, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_rebs_ci
+```
+
+## Case Bootstrap
+
+```{r, cache=TRUE}
+system.time(
+  boo_cas <- bootstrap_mer(m1, rsq, nsim = 999L, type = "case"))
+boo_cas
+system.time(
+  boo_cas1 <- bootstrap_mer(m1, rsq, nsim = 999L, type = "case", 
+                            lv1_resample = TRUE))
+boo_cas1
+```
+
+### Confidence interval
+
+```{r, cache=TRUE}
+# Only sampling clusters
+boo_cas_ci <- boot::boot.ci(boo_cas, type = c("norm", "basic", "perc", "bca"), 
+                            index = 1L, L = inf_val)
+boo_cas_ci
+# Transformational (with correction)
+boo_cas1_ci <- boot::boot.ci(boo_cas1, type = c("norm", "basic", "perc", "bca"), 
+                             index = 1L, L = inf_val)
+boo_cas1_ci
+```
+
+## Summary
+
+```{r}
+boo_names <- c("parametric", "residual", "cgr", "trans", 
+               "trans (cor)", "REB", "REB (scaled)", 
+               "case (cluster)", "case (c + i)")
+boo_lst <- list(boo_par, boo_res, boo_cgr, boo_tra, boo_trac, 
+                boo_reb, boo_rebs, boo_cas, boo_cas1)
+boo_ci_lst <- list(boo_par_ci, boo_res_ci, boo_cgr_ci, boo_tra_ci, 
+                   boo_trac_ci, boo_reb_ci, boo_rebs_ci, boo_cas_ci, 
+                   boo_cas1_ci)
+get_ci <- function(boo_ci, type) {
+  paste0("(", paste(comma(tail(boo_ci[[type]][1, ], 2L)), collapse = ", "), ")")
+}
+tab <- tibble(boot_type = boo_names, boo = boo_lst, boo_ci = boo_ci_lst) %>%
+  mutate(sd = map_chr(boo, ~ comma(sd(.x$t))), 
+         normal = map_chr(boo_ci, ~ get_ci(.x, "normal")), 
+         basic = map_chr(boo_ci, ~ get_ci(.x, "basic")), 
+         percentile = map_chr(boo_ci, ~ get_ci(.x, "percent")), 
+         bca = map_chr(boo_ci, ~ get_ci(.x, "bca"))) %>%
+  select(-boo, -boo_ci)
+knitr::kable(tab)
+```
+
