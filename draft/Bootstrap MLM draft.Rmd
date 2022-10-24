@@ -71,7 +71,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 ```
 
-
+<!-- ML: The title seems a bit strange. Maybe something like "Basics of the Bootstrap"? -->
 ## A Basic Procedure of Bootstrap
 
 ```{r child='boot_intro.Rmd'}
@@ -81,6 +81,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 # Section II: Bootstrapping for Multilevel Models
 
+<!-- ML: suggest to remove this subhead -->
 ## Challenges With MLM
 
 ```{r child ='mlm_boot.Rmd'}
