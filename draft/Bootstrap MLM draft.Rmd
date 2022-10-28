@@ -3,31 +3,30 @@ title             : "Bootstrap methods for multilevel data when asymptotic distr
 shorttitle        : "BOOTSTRAPPING MLM"
 
 author: 
-  - name          : "First Author"
+  - name          : "Yichi Zhang"
     affiliation   : "1"
     corresponding : no    # Define only one corresponding author
-    address       : "Postal address"
-    email         : "my@email.com"
-
-  - name          : "Ernst-August Doelle"
+    email         : "yzhang97@usc.edu"
+  - name          : "Winnie Wing-Yee Tse"
+    corresponding : no
+    affiliation   : "1,2"
+    email         : "wingyeet@usc.edu"
+  - name          : "Mark H. C. Lai"
+    affiliation   : "1"
     corresponding : yes
-    affiliation   : "1,2"
-    email         : "my@email.com"
-
-  - name          : "Ernst-August Doelle"
-    corresponding : no    
-    affiliation   : "1,2"
+    address       : "University of Southern California, 3620 S McClintock Ave, Los Angeles, CA 90089"
+    email         : "hokchiol@usc.edu"
 
 affiliation:
   - id            : "1"
-    institution   : "University of Southern California"
+    institution   : "\\protect{Department of Psychology, University of Southern California}"
 
 authornote: |
+  \addORCIDlink{Yichi Zhang}{0000-0002-4112-2106}
+  
   \addORCIDlink{Winnie Wing-Yee Tse}{0000-0001-5175-6754}
   
   \addORCIDlink{Mark H. C. Lai}{0000-0002-9196-7406}
-  
-  \addORCIDlink{Yichi Zhang}{0000-0002-4112-2106}
 
 keywords: "multilevel modeling, bootstrap, standard errors, confidence intervals"
 bibliography: ["mlm_boot.bib"]
@@ -106,9 +105,16 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 # Section IV: Illustration
 
-```{r child = 'illustration.Rmd'}
+```{r child='illustration.Rmd'}
 
 ```
+
+## Software for Multilevel Bootstrap
+
+```{r child='software.Rmd'}
+
+```
+
 
 
 \newpage
