@@ -1,4 +1,4 @@
-In addition to obtain bias-corrected standard errors, bootstrapping is widely used for computing confidence intervals (CI). In this section, we will discuss different types of two-sided bootstrap confidence intervals. Assume the true value of parameter $\theta$ is $\theta_0$, and the probability of the confidence intervals containing the $\theta_0$ is $1-\alpha$. Let $\Phi(z)$ be the standard normal distribution, then $z_\alpha$ represents the $\alpha$th quantile of the distribution such that $z_\alpha = \Phi^{-1}(\alpha)$. A confidence interval is defined by limits $\hat\theta_{\alpha_1}$ and $\hat\theta_{1-\alpha_2}$ such that $\text{Pr}(\theta < \hat\theta_\alpha) = \alpha$.
+In addition to obtaining bias-corrected standard errors, bootstrapping is widely used for computing confidence intervals (CI). In this section, we discuss different types of two-sided bootstrap confidence intervals. Assume the true value of parameter $\theta$ is $\theta_0$, and the probability of a random confidence interval containing $\theta_0$ is $1-\alpha$. <!-- ML: 1 - \alpha is ideal but may not always happen, as many CIs have below nominal coverage. Could you just say that the target confidence level is 1 - alpha? --> Let $\Phi(z)$ be the standard normal distribution, <!-- ML: do you mean the cumulative density function? -->then $z_\alpha$ represents the $\alpha$th quantile <!--ML: we don't say qth quantile; we say (100q) percentile or just q quantile --> of the standard normal distribution such that $z_\alpha = \Phi^{-1}(\alpha)$. A confidence interval is defined by limits $\hat\theta_{\alpha_1}$ and $\hat\theta_{1-\alpha_2}$ such that $\text{Pr}(\theta < \hat\theta_\alpha) = \alpha$.
 
 <!-- The consistent estimator of this distribution obtained from $b = 1,..., B$ bootstrap replications $\theta_b^*$ is $\hat H(\theta) = \frac{\#\{b:\theta_B^* \leq \theta\}}{B}$. -->
 ## Bootstrap normal CI
@@ -18,6 +18,7 @@ $$[\hat \theta_T + t_{1-\frac{1}{2}\alpha}\hat{se}_B(\hat \theta); \hat \theta_T
 
 The percentile CI is formed by using quantiles directly from the bootstrapped distribution [@efron1982]. $$[\hat \theta_{T,\frac{1}{2}\alpha}^*; \hat \theta_{T,1-\frac{1}{2}\alpha}^*]$$ Although this percentile CI does not assume asymptotic normality of $\hat \theta$, it has been found to generate biased results [@efron1993].
 
+<!-- ML: Is BCa a subhead? -->
 ### Bias-Corrected and Bias-Corrected and accelerated CI
 
 To correct the bias contained in the percentile CI, @efron1993 proposed the bias-corrected and accelerated ($BC_a$) CI. Instead of the $\alpha/2$ and $1-\alpha/2$ quantiles used in the percentile CI, $\alpha_L$ and $1-\alpha_U$ are selected to construct the $BC_a$ CI. @efron1993 defined $\alpha_L$ and $1-\alpha_U$ as
