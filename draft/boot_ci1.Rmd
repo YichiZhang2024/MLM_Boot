@@ -5,7 +5,7 @@ In addition to obtaining bias-corrected standard errors, bootstrapping is widely
 
 If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmetric CI is $$[\hat \theta - z_{1-\frac{\alpha}{2}}\hat{se}_N(\hat \theta), \hat \theta + z_{1-\frac{\alpha}{2}}\hat{se}_N(\hat \theta)],$$ where $\hat \theta$ is the estimated parameter, and $\hat se_N (\hat \theta) = \sqrt{\hat \psi/n}$ is the estimator of the asymptotic standard deviation of $\hat \theta$. For bootstrap normal confidence interval, $\hat{se}_N$ is replaced with $\hat{se}_B$ [@leeden2008], the bootstrap estimator of the standard deviation of $\hat \theta$, $$[\hat \theta - z_{1-\frac{\alpha}{2}}\hat{se}_B(\hat \theta), \hat \theta + z_{1-\frac{\alpha}{2}}\hat{se}_B(\hat \theta)].$$
 
-## Hall's percentile
+## Basic/Hall's percentile
 
 Hall's percentile CI uses quantiles of the bootstrapped distribution instead of the normal distribution to obtain more accurate results when $\hat \theta$ does not follow a normal distribution [@hall1992; @leeden2008]. For bootstrap distribution $\hat \theta - \theta^ *$, $\alpha$ and $1-\alpha/2$ quantiles can be computed by $\hat q_{\frac{1}{2}} = \hat \theta_T - \hat \theta^*_{T,\frac{1}{2}\alpha}$ and $\hat q_{1-\frac{1}{2}} = \hat \theta_T - \hat \theta^*_{T,1-\frac{1}{2}\alpha}$. Replacing the quantiles from the bootstrap distribution, the confidence interval for $\theta_0$ is $$[2\hat{\theta}_T - \hat \theta^*_{T,1-\frac{1}{2}\alpha}; 2\hat{\theta}_T - \hat \theta^*_{T,\frac{1}{2}\alpha}].$$
 

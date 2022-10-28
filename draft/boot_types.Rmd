@@ -29,7 +29,6 @@ Unlike the parametric bootstrap, residuals bootstrap does not assume the residua
 ## Wild bootstrap
 
 The wild bootstrap is a resampling algorithm developed for models with heteroscedastic errors [@wu1986]. It was first proposed by @liu1988 for ordinary regression models to account for heterscedastic error terms, following the suggestion by @wu1986 [@mackinnon2006]. @flachaire2005 and @davidson2008 later refined the method and provided support for its performance. Recently, @modugno2015 extended the wild bootstrap to multilevel models.
-<!-- The wild bootstrap assumes the error terms to be mutually independent, which is clearly violated in MLM. To address this issue, @modugno2015 proposed to generate data using marginal residuals. -->
 
 The central idea of the wild bootstrap is to replace the heteroscedastic residuals $\hat v_j = y_j -  X_j \hat \beta$ with the heteroscedasticity consistent (HC) covariance matrix estimator proposed by [@mackinnon1985], and multiply them with a random variable $w$ drawn from an auxiliary distribution with mean 0 and unit variance, then generate the bootstrap responses and compute the statistic of interest [@liu1988]. <!-- ML: the previous sentence can be broken down into two --> The commonly used covariance matrix estimators are HC2 and HC3, which are shown to outperform others in power [@mackinnon1985; @davidson1993]. Assume $H_j = X_j(X^TX)^{-1}X_j^T$ is the $j$th diagonal block of the orthogonal project matrix:
 \begin{equation}
