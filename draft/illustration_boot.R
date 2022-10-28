@@ -308,7 +308,7 @@ rownames(boo_tab) <- NULL
 compare_boo <- data.frame(
   stat = c("Original Est.", 
            rep(c("Bias-Corrected Est.", "Bootstrap SE", "Normal", 
-                 "Basic", "Percentile", "Studentized", "BCA"), each = 5)), 
+                 "Basic", "Percentile", "Studentized", "BCa"), each = 5)), 
   boo_type = c(" ", rep(c("Parametric", "Wild", "Residual", "Cases (level-2)", 
                           "Cases (both levels)"), 7)), 
   boo_tab
