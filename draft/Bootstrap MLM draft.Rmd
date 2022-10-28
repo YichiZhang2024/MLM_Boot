@@ -100,6 +100,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 ```
 
+## Comparing Different Bootstrap Confidence Intervals
 
 ```{r child='boot_ci.Rmd'}
 
