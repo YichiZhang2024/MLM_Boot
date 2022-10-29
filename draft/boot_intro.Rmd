@@ -1,3 +1,4 @@
+
 Bootstrap methods are useful for computing standard errors, confidence intervals, and testing hypotheses for an estimator when some model assumptions are violated [@efron1993; @davison1997; @wilcox2017]. <!-- ML: Check reference list for the Wilcox entries --> The general idea of bootstrapping is to create many samples by repeatedly drawing observations from a dataset <!-- ML: how about "repeatedly resampling observations . . . ?" --> and computing the estimator for each simulated sample. The bootstrap process yields an approximate distribution of the estimator, from which the standard errors and confidence intervals can be calculated. The bootstrap methods have been shown to perform well in controlling the Type I error rates and maintaining accurate confidence interval coverages in situations such as when the normality assumption is violated [e.g., @efron1988; @strube1988] and the homoscedasticity assumption fails [e.g., @wilcox2001; @krishnamoorthy2007]. As will be <!--ML: Use active voice for a few of these sentences, if possible. --> discussed in the following sections, there are many bootstrap procedures, some better than others in controlling the Type I error rates in certain situations. We begin with an introduction of one of the most basic bootstrap methods---bootstrap-$t$, also known as percentile-$t$---for computing confidence interval and standard error for the sample mean. <!-- ML: We need to resolve the inconsistency in naming. --> 
 
 Suppose that we collected data with $n$ observations, $X_1, \dots, X_n$, and aim to test against the null hypothesis, $H_0: \mu=\mu_0$, that the population mean is zero. <!-- ML: so \mu_0 = 0? --> Recall that the student *t-*statistic is 
@@ -10,6 +11,7 @@ where $\bar X = \frac{1}{n}\sum_i^n X_i$ is the sample mean, $\mu_0$ is the null
 \end{equation}
 where $t_{1-\alpha/2}$ and $t_{\alpha/2}$ are the $1-\alpha/2$ and $t_{\alpha/2}$ quantiles of $T$. 
 
+
 <!-- ML: I think the bootstrap-t is a bit more complicated than other procedures. And I don't think it helps to start with constructing CIs before talking about the sampling algorithms. How about talking about the sampling with replacement part first? And then just talk about the percentile CI instead of the bootstrap-t CI? -->
 However, our data has a skewed distribution and violates the normality assumption. To account for nonnormality, we perform bootstrapping in the following procedure [@wilcox2017; @efron1993]:
 
@@ -18,8 +20,17 @@ However, our data has a skewed distribution and violates the normality assumptio
 3. Repeat steps (1) and (2) $B$ times to obtain $B$ bootstrap *t*-statistics, $T^*_1, \dots, T^*_B$, which forms a distribution that approximates the sampling distribution of the *t*-statistic. 
 4. Sort the bootstrap sample means in ascending order to get $T^*_{(1)} \leq T^*_{(2)} \leq \dots \leq T^*_{(B)}$. 
 
-Based on the bootstrap samples, we can estimate the sample mean by taking the average of the bootstrap sample means, $\bar X^*=\frac{1}{B}\sum_b^BX^*_b$, and the standard error of the mean by taking the average of the bootstrap standard errors, $se^*=\frac{1}{B}\sum_b^Bse^*_b$. An approximate 95% confidence interval for the sample mean is
+Based on the bootstrap samples, we can estimate the sample mean by taking the average of the bootstrap sample means, $\bar X^*=\frac{1}{B}\sum_b^BX^*_b$, and the standard error of the mean by taking the average of the bootstrap standard errors, $se^*=\frac{1}{B}\sum_b^Bse^*_b$. The bias of the sample mean, $\bar X$, is estimated by the bias of $\bar X^*$ [@efron1993; @vanderleeden2008], given by
 \begin{equation}
-[\bar X^* - t_{1-\alpha/2}^{*} se^{*}, \bar X^* - t_{\alpha/2}^{*} se^{*}]
+\hat{\text{Bias}}(\bar X) = \hat{\text{Bias}}(\bar X^*) = \bar X^* - \bar X,
 \end{equation}
-where $t^*_{1-\alpha/2}$ and $t^*_{1-\alpha/2}$ denote the the $1 - \alpha/2$ and $\alpha/2$ quantiles of the bootstrap distribution. For example, if $B=1000$ with at the significance level of $\alpha=.05$, $t^*_{1-\alpha/2}= t^*_{.025}$ and $t^*_{\alpha/2} = t^*_{.975}$.
+and the bias-corrected estimator of $\bar X$ is
+\begin{equation}
+\bar X_{corrected} = 2 \bar X - \bar X^* = \bar X - \hat{\text{Bias}}(\bar X).
+\end{equation}
+
+An approximate 95% confidence interval for the sample mean is
+\begin{equation}
+[\bar X^* - t_{1 - \alpha/2}^{*} se^{*}, \bar X^* + t_{1 - \alpha/2}^{*} se^{*}]
+\end{equation}
+where $t^*_{1-\alpha/2}$ denote the the $1 - \alpha/2$ quantile of the bootstrap distribution. For example, if $B=1000$ with at the significance level of $\alpha=.05$, $t^*_{\alpha/2} = t^*_{.975}$.
