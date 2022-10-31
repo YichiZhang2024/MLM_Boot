@@ -1,15 +1,15 @@
 
-In this section, we illustrate three bootstrap approaches (i.e., parametric, residual, and case) with the *bootmlm* R package and wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain CIs for the fixed effects, intraclass correlations (ICC), and the variance explained by the fixed effects ($R^2$). 
+In this section, we illustrate three bootstrap approaches (i.e., parametric, residual, and case) with the *bootmlm* R package and the wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain CIs for the fixed effects, intraclass correlations (ICC), and the variance explained by the fixed effects ($R^2$). <!-- ML: Also mention bias-corrected estimates? -->
 
-The empirical example is an elementary school study by [@knuver1993; @doolaard1999], whose data was shared and used in @snijders2012. This study contains data for 3758 students, after a list-wise deletion of 258 students, from 211 schools with class sizes ranging between 5 and 36. As shown in @snijders2012 (Chapter 8 and 10), the intelligence variable in the data appear to violate both assumptions of normality and homoscedasticity. 
+The empirical example is an elementary school study by @knuver1993 and @doolaard1999, whose data was shared and used in @snijders2012. This study contains data for 3,758 students (after a list-wise deletion of 258 students), from 211 schools with class sizes ranging between 5 and 36. As shown in @snijders2012 (Chapters 8 and 10), the intelligence variable in the data appeared to violate both assumptions of normality and homoscedasticity. 
 
 <!-- YZ: It'll be helpful to mention which variables violate the homoscedasticity assumptions in snijders2012 [X] WT: good suggestion!-->
 
-We adopt the model in @snijders2012 (Chapter 8), which is a two-level model with students nested within schools, to predict language test scores ($\text{lang}_{ij}$) with students' intelligence ($\text{IQ}_{ij}$), gender ($\text{gender}_{ij}$), and family's socio-economic status ($\text{SES}_{ij}$). For the continuous level-1 (student-level) predictors, the standard practice is to disaggregate the between- and within-effects by including the level-2 mean (school-level mean) of each predictor in the model and centering the level-1 predictors by the level-2 means. In this example, $\text{school\_IQ}_j$ is the school mean of intelligence, and $\text{school\_SES}$ is the school mean of socio-economic status. The equation of the full model is
+We adopt the two-level model in @snijders2012 (Chapter 8), with students nested within schools, to predict language test scores ($\text{lang}_{ij}$) with students' intelligence ($\text{IQ}_{ij}$), gender ($\text{gender}_{ij}$), and family's socio-economic status ($\text{SES}_{ij}$). For the continuous level-1 (student-level) predictors, the standard practice is to disaggregate the between- and within-effects by including the level-2 mean (school-level mean) of each predictor in the model and centering the level-1 predictors by the level-2 means. In this example, $\text{school\_IQ}_j$ is the school mean of intelligence, and $\text{school\_SES}$ is the school mean of socio-economic status. The equation of the full model is <!-- ML: The zeros are not consistent with the ones in the intro -->
 \begin{align}
 \begin{split}
 \text{Level 1: } & \text{lang}_{ij} = \beta_{0j} + \beta_{1j}\text{IQ}_{ij} + \beta_{2j}\text{SES}_{ij} + \beta_{3j} \text{gender}_{ij} + \beta_{4j} \text{IQ}_{ij} \times \text{SES}_{ij} + e_{ij}, \quad \epsilon_{ij} \sim N(0, \sigma^2)\\
-\text{Level 2: } & \beta_{0j} = \gamma_{00} + \gamma_{01} \text{school\_IQ}_{j} + \gamma_{02} \text{school\_SES}_{j} + \gamma_{03}\text{school\_IQ}\times\text{school\_SES} + u_{0j} \\
+\text{Level 2: } & \beta_{0j} = \gamma_{00} + \gamma_{01} \text{school\_IQ}_{j} + \gamma_{02} \text{school\_SES}_{j} + \gamma_{03}\text{school\_IQ}_j\times\text{school\_SES}_j + u_{0j} \\
 & \beta_{1j} = \gamma_{10} + u_{1j}\\
 & \beta_{2j} = \gamma_{20} \\ 
 & \beta_{3j} = \gamma_{30} \\ 
@@ -28,7 +28,7 @@ u_{0j} \\ u_{1j}
 (\#eq:sj-mod)
 \end{split}
 \end{align}
-where $\text{IQ}_j$ and $\text{school\_SES}_j$ are the average intelligence and SES of students within each school, respectively; $\gamma_{00}$ is the grand intercept of language scores; $\gamma_{01}$ and $\gamma_{02}$ are the school-level fixed effects of intelligence and SES, respectively; $\gamma_{03}$ is the school-level interaction between intelligence and SES; $\gamma_{10}$ and $\gamma_{20}$ are the student-level fixed effects of intelligence and SES, respectively; $\gamma_{30}$ is the student-level interaction between intelligence and SES; $u_{0j}$ is the random effect from the grand intercept; and $u_{1j}$ is the random effect from the student-level intelligence. For reproducibility, we use the following syntax to download and import the dataset from the website of @snijders2012 to our local R environment. 
+where $\text{IQ}_j$ and $\text{school\_SES}_j$ are the average intelligence and SES of students within each school, respectively; <!-- ML: I think you've explained school_SES and school_IQ already-->$\gamma_{00}$ is the grand intercept of language scores; $\gamma_{01}$ and $\gamma_{02}$ are the school-level fixed effects of intelligence and SES, respectively; $\gamma_{03}$ is the school-level interaction between intelligence and SES; $\gamma_{10}$ and $\gamma_{20}$ are the student-level fixed effects of intelligence and SES, respectively; $\gamma_{30}$ is the student-level interaction between intelligence and SES; $u_{0j}$ is the random effect from the grand intercept; and $u_{1j}$ is the random effect from the student-level intelligence. For reproducibility, we use the following syntax to download and import the dataset from the website of @snijders2012 to our local R environment. 
 
 <!-- YZ: Maybe add a sentence to explain the difference between $IQ_j$ and $school_IQ_j$? Something like we  [X] WT: added to line 47 -->
 \singlespacing
@@ -52,6 +52,7 @@ remotes::install_github("marklhc/bootmlm")
 \singlespacing
 
 ```{r message=FALSE, echo=FALSE}
+options(width = 72)  # force line wrap
 library(lme4)
 library(bootmlm)
 library(lmeresampler)
@@ -66,10 +67,10 @@ In this illustration, we will use five R packages: *lme4* [version 1.1.30\; @bat
 \begin{align}
 \begin{split}
 \text{lang}_{ij} & = \gamma_{00} + u_{0j} + \epsilon_{ij} \\
-u_{0j} & \sim N(0, \tau^2_{00}), \quad \epsilon_{ij} \sim N(0, \sigma^2). 
+u_{0j} & \sim N(0, \tau^2_{00}), \quad \epsilon_{ij} \sim N(0, \sigma^2),
 \end{split}
 \end{align}
-ICC is defined as $\rho = \frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$. 
+to obtain the ICC: $\rho = \frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$. 
 <!-- YZ: We need to double check the consistency of symbols and equations once we finish the chapter WT: Sure. Changed to epsilon -->
 \singlespacing
 
@@ -77,14 +78,15 @@ ICC is defined as $\rho = \frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$.
 # unconditional model
 mod_0 <- lmer(langPOST ~ (1 | schoolnr), data = sj_dat)
 # final model
-mod_f <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses + (IQ_verb | schoolnr), 
+mod_f <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses +
+                (IQ_verb | schoolnr), 
               data = sj_dat)
 ```
 
 \doublespacing
 
 <!-- We compute ICC, defined as $\frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$, based on the null model and obtain the fixed effects and variance explained by the fixed effects based on the final model.  -->
-We first define two functions, `fixef_rsq()` which takes the full model to compute the fixed effects and the variance explained by the fixed effects ($R^2$), and `icc()` which takes the null model to compute ICC. `fixef_rsq()` yields estimates for nine parameters, including the eight fixed effects ($\gamma_{00}, \gamma_{01}, \gamma_{02}, \gamma_{03}, \gamma_{10}, \gamma_{20}, \gamma_{30}, \gamma_{40}$) and the variance explained by the fixed effects ($R^2$). In `icc()`, we compute the ICC, defined as $\rho = \frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$, and additionally the variance of ICC, which will be used to construct the bootstrap-*t*/studentized CI for ICC. 
+We first define two functions: `fixef_rsq()` takes the full model to compute the fixed effects and the variance explained by the fixed effects ($R^2$), and `icc()` takes the null model to compute ICC. `fixef_rsq()` yields estimates for nine parameters, including the eight fixed effects ($\gamma_{00}, \gamma_{01}, \gamma_{02}, \gamma_{03}, \gamma_{10}, \gamma_{20}, \gamma_{30}, \gamma_{40}$) and the variance explained by the fixed effects ($R^2$). In `icc()`, we compute the ICC, defined as $\rho = \frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$, and additionally its asymptotic sampling variance, which will be used to construct the bootstrap-*t*/studentized CI. 
 
 \singlespacing
 
@@ -143,7 +145,7 @@ boo_par_icc <- bootstrap_mer(mod_0, icc, nsim = 1999L, type = "parametric")
 
 \doublespacing
 
-We can use the `boot.ci()` function in *boot* to compute the CIs for the bootstrap samples. For the fixed effects and $R^2$ with parametric bootstrap, this function provides three ways to construct CIs: normal, basic, and percentile. As `boo_par_fr` consists of the bootstrap samples for nine parameters, `lapply()` allows us to compute CIs for all of them simultaneously. 
+After running bootstrap resampling, we can use the `boot.ci()` function in *boot* to compute the CIs for the bootstrap samples. For the fixed effects and $R^2$ with parametric bootstrap, this function provides three ways to construct CIs: normal, basic, and percentile.<!-- ML: boot.ci() supports five. Would you clarify that studentized and BCa require additional input? --> As `boo_par_fr` consists of the bootstrap samples for nine parameters, `lapply()` allows us to compute CIs for all of them simultaneously. 
 
 \singlespacing
 
@@ -162,7 +164,7 @@ boo_par_icc_ci <- boot.ci(boo_par_icc, type = c("norm", "basic", "perc", "stud")
 ```
 
 
-## Wild Bootstrap
+## Wild Bootstrap <!-- ML: Check the order of the 4 bootstrap types with the previous sections -->
 
 While wild bootstrap is unavailable in *bootmlm*, we can use the function `wild_bootstrap()` in the *lmeresampler* R package. Similar to those in `bootstrap_mer()`, the required input arguments in `wild_bootstrap()` are the fitted model object, the defined function that computes the parameter estimates (`.f`), and the number of bootstrap samples (`B`). 
 
@@ -175,7 +177,7 @@ boo_wil_icc <- wild_bootstrap(mod_0, .f = icc, B = 1999L)
 
 \doublespacing
 
-At the moment of writing this chapter, the bootstrap output from *lmeresampler* (version `r packageVersion("lmeresampler")`) can be summarized with the `confint()` function from the *stats* package but not with `boot::boot.ci()`. `stats::confint()` supports three ways to construct the CIs with wild bootstrap: normal, basic, and percentile, with the argument `type = "all"`. 
+At the moment of writing this chapter, the bootstrap output from *lmeresampler* (version `r packageVersion("lmeresampler")`) can be summarized with the `confint()` function, which supports three ways of constructing CIs with wild bootstrap: normal, basic, and percentile, with the argument `type = "all"`. 
 
 \singlespacing
 
@@ -189,9 +191,9 @@ boo_wil_icc_ci <- confint(boo_wil_icc, type = "all")
 
 ## Residual Bootstrap
 
-<!-- `bootmlm` implements three methods for residual bootstrap: (a) differentially reflated residual bootstrap, (b) Carpenter-Goldstein-Rashbash's residual bootstrap [CGR; @carpenter2003], and (c) transformational residual bootstrap by @leeden2008.  -->
+<!-- `bootmlm` implements three methods for residual bootstrap: (a) differentially reflated residual bootstrap, (b) Carpenter-Goldstein-Rashbash's residual bootstrap [CGR; @carpenter2003], and (c) transformational residual bootstrap by @vanderleeden2008.  -->
 
-As the residuals (denoted as $\tilde u$ and $\tilde \epsilon$), which are generally empirical Bayes estimates, are shrinkage parameters, their sampling variabilities are much smaller than the population random effects, $u$ and $\epsilon$. Residual bootstrap accounts for the small sampling variabilities by rescaling $\tilde u$ and $\tilde \epsilon$. To perform residual bootstrap, we specify `type = "residual"` in `bootmlm::bootstrap_mer`. 
+As the residuals in MLM (denoted as $\tilde u$ and $\tilde \epsilon$) are shrinkage estimates, their sampling variabilities are much smaller than the population random effects (e.g., $\tau^2$ and $\sigma^2$). Residual bootstrap accounts for the small sampling variabilities by rescaling $\tilde u$ and $\tilde \epsilon$. To perform residual bootstrap, we specify `type = "residual"` in `bootmlm::bootstrap_mer`. 
 <!-- The transformational residual bootstrap is particular useful for bounded parameters, such as ICC and $R^2$. Here we demonstrate the first two methods and discuss the transformational residual bootstrap in a separate subsection.  -->
 <!-- YZ: I only described a general idea of reflating residuals in section III. I'll add some additional details of these three types of reflations WT: I took away the other two residual bootstrap methods, as suggested by Mark -->
 
@@ -207,7 +209,7 @@ boo_res_icc <- bootstrap_mer(mod_0, icc, nsim = 1999L, type = "residual")
 
 \doublespacing
 
-For the fixed effects and $R^2$, we exemplify four ways to construct CIs with `boot::boot.ci()` with residual bootstrap methods: normal, basic, percentile, and additionally the bias-corrected and accelerated bootstrap (BCa). For ICC, we also compute the studentized CI. As discussed in Section III, the influence values are needed to compute CIs with BCa and can be obtained using the function `empinf_mer()` in *botmlm*. This function requires the inputs of the fitted model (`mod_f` and `mod_0`), the defined function that computes the parameter estimate(s) (`fixef_rsq()` and `icc()`), and the index of the statistic in the output of the defined function. As `fixef_rsq()` yields nine statistics, we can use `lapply()` to conveniently compute the influence values for all of them at once. 
+For the fixed effects and $R^2$, we exemplify four ways to construct CIs with `boot::boot.ci()` with residual bootstrap methods: normal, basic, percentile, and additionally, the bias-corrected and accelerated bootstrap (BCa). For ICC, we also illustrate the studentized CI. As discussed in Section III, the influence values are needed to compute CIs with BCa and can be obtained using the function `empinf_mer()` in *botmlm*. This function requires the inputs of the fitted model (`mod_f` and `mod_0`), the defined function that computes the parameter estimate(s) (`fixef_rsq()` and `icc()`), and the index of the statistic in the output of the defined function. As `fixef_rsq()` yields nine statistics, we can use `lapply()` to conveniently compute the influence values for all of them at once. 
 
 \singlespacing
 
@@ -386,7 +388,7 @@ Tables\ \@ref(tab:comp1)-\ \@ref(tab:comp3) summarize the standard errors and CI
 
 For the school-level fixed effects, the CIs are similar across methods, except for the school-mean intelligence ($\gamma_{01}$). The standard errors are also similar across methods, except for the grand intercept ($\gamma_{00}$) and the school-mean intelligence. The cases bootstrap with resampling at both levels shows the most drastic differences with larger standard errors and wider CIs. For the student-level fixed effects, the standard errors and CIs are similar across methods, except for the student-level intelligence ($\gamma_{10}$) and the interaction between the student-level intelligence and socio-economic status ($\gamma_{30}$). Similarly, the cases bootstrap with resampling at both levels gives larger standard errors and wider CIs.
 
-For $R^2$, the transformed $R^2$, and ICC, all methods yield similar standard errors and CIs are similar. Cases bootstrap with resampling at both levels tend to give a lower normal and basic CIs than other CI methods for ICC. 
+For $R^2$, the transformed $R^2$, and ICC, all methods yield similar standard errors and CIs are similar. Cases bootstrap with resampling at both levels tend to give a lower normal and basic CIs than other CI methods for ICC. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense -->
 
 
 
