@@ -9,7 +9,7 @@ author:
     email         : "yzhang97@usc.edu"
   - name          : "Winnie Wing-Yee Tse"
     corresponding : no
-    affiliation   : "1,2"
+    affiliation   : "1"
     email         : "wingyeet@usc.edu"
   - name          : "Mark H. C. Lai"
     affiliation   : "1"
