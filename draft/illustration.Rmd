@@ -4,11 +4,11 @@ In this section, we illustrate three bootstrap approaches (i.e., parametric, res
 The empirical example is an elementary school study by @knuver1993 and @doolaard1999, whose data was shared and used in @snijders2012. This study contains data for 3,758 students (after a list-wise deletion of 258 students), from 211 schools with class sizes ranging between 5 and 36. As shown in @snijders2012 (Chapters 8 and 10), the intelligence variable in the data appeared to violate both assumptions of normality and homoscedasticity. 
 
 <!-- YZ: It'll be helpful to mention which variables violate the homoscedasticity assumptions in snijders2012 [X] WT: good suggestion!-->
-
-We adopt the two-level model in @snijders2012 (Chapter 8), with students nested within schools, to predict language test scores ($\text{lang}_{ij}$) with students' intelligence ($\text{IQ}_{ij}$), gender ($\text{gender}_{ij}$), and family's socio-economic status ($\text{SES}_{ij}$). For the continuous level-1 (student-level) predictors, the standard practice is to disaggregate the between- and within-effects by including the level-2 mean (school-level mean) of each predictor in the model and centering the level-1 predictors by the level-2 means. In this example, $\text{school\_IQ}_j$ is the school mean of intelligence, and $\text{school\_SES}$ is the school mean of socio-economic status. The equation of the full model is <!-- ML: The zeros are not consistent with the ones in the intro. WT: does it work if I change all of them to a numeric zero (i.e., 0)? I initially thought that $\rlap{0}/$ is needed to indicate a zero matrix. -->
+<!-- YZ: I made some modifications to the equation below, see if it makes sense-->
+We adopt the two-level model in @snijders2012 (Chapter 8), with students nested within schools, to predict language test scores ($\text{lang}_{ij}$) with students' intelligence ($\text{IQ}_{ij}$), gender ($\text{gender}_{ij}$), and family's socio-economic status ($\text{SES}_{ij}$). For the continuous level-1 (student-level) predictors, the standard practice is to disaggregate the between- and within-effects by including the level-2 mean (school-level mean) of each predictor in the model and centering the level-1 predictors by the level-2 means. In this example, $\text{school\_IQ}_j$ is the school mean of intelligence, and $\text{school\_SES}$ is the school mean of socio-economic status. The equation of the full model is <!-- ML: The zeros are not consistent with the ones in the intro -->
 \begin{align}
 \begin{split}
-\text{Level 1: } & \text{lang}_{ij} = \beta_{0j} + \beta_{1j}\text{IQ}_{ij} + \beta_{2j}\text{SES}_{ij} + \beta_{3j} \text{gender}_{ij} + \beta_{4j} \text{IQ}_{ij} \times \text{SES}_{ij} + e_{ij}, \quad \epsilon_{ij} \sim N(0, \sigma^2)\\
+\text{Level 1: } & \text{lang}_{ij} = \beta_{0j} + \beta_{1j}\text{IQ}_{ij} + \beta_{2j}\text{SES}_{ij} + \beta_{3j} \text{gender}_{ij} + \beta_{4j} \text{IQ}_{ij} \times \text{SES}_{ij} + \epsilon_{ij}, \quad \epsilon_{ij} \sim N(0, \sigma^2)\\
 \text{Level 2: } & \beta_{0j} = \gamma_{00} + \gamma_{01} \text{school\_IQ}_{j} + \gamma_{02} \text{school\_SES}_{j} + \gamma_{03}\text{school\_IQ}_j\times\text{school\_SES}_j + u_{0j} \\
 & \beta_{1j} = \gamma_{10} + u_{1j}\\
 & \beta_{2j} = \gamma_{20} \\ 
@@ -22,9 +22,9 @@ u_{0j} \\ u_{1j}
 \begin{bmatrix}\tau^2_{00}\\
 \tau_{01} & \tau^2_{11}
 \end{bmatrix}\right) \\
-\text{Combined: } & \text{lang}_{ij} = \gamma_{00} + \gamma_{10}\text{IQ}_{ij} + \gamma_{20}\text{SES}_{ij} + \gamma_{30}\text{gender}_{ij} + \gamma_{40}\text{IQ}_{ij} \times \text{SES}_{ij}\text{gender}_{ij} + \\
-& \quad \gamma_{01} \text{school\_IQ}_{j} + \gamma_{02} \text{school\_SES}_j + \gamma_{03} \text{school\_SES}_j \times \text{school\_IQ}_j + \\
-& \quad u_{0j} + u_{1j} \text{IQ}_{ij} + e_{ij}, 
+\text{Combined: } & \text{lang}_{ij} = \gamma_{00} + \gamma_{10}\text{IQ}_{ij} + \gamma_{20}\text{SES}_{ij} + \gamma_{30}\text{gender}_{ij} + \gamma_{40}\text{IQ}_{ij} \times \text{SES}_{ij} + \\
+& \quad \gamma_{01} \text{school\_IQ}_{j} + \gamma_{02} \text{school\_SES}_j + \gamma_{03} \text{school\_IQ}_j \times \text{school\_SES}_j + \\
+& \quad u_{0j} + u_{1j} \text{IQ}_{ij} + \epsilon_{ij}, 
 (\#eq:sj-mod)
 \end{split}
 \end{align}
@@ -60,7 +60,7 @@ library(MuMIn)
 
 
 \doublespacing
-
+<!-- YZ: This paragraph is very clear. -->
 In this illustration, we will use five R packages: *lme4* [version 1.1.30\; @bates2015] for multilevel analysis; *MuMIn* [version 1.47.1\; @barton2022] for computing $R^2$; *bootmlm* [version 0.0.1.1000\; @lai2021] for parametric, residual, and cases bootstrap; *lmeresampler* [version 0.2.2\; @loy2022] for wild bootstrap; and *boot* [version 1.3.28\; @canty2021; @davison1997] for computing bootstrap CIs. We perform two models in *lme4*: (a) the full model in @snijders2012, as shown in Model\ \@ref(eq:sj-mod), and (b) the null model (the unconditional model) that has no predictors, given by
 \begin{align}
 \begin{split}
@@ -141,7 +141,6 @@ boo_par_icc <- bootstrap_mer(mod_0, icc, nsim = 1999L, type = "parametric")
 
 After running bootstrap resampling, we can use the `boot.ci()` function in *boot* to compute the CIs for the bootstrap samples. This function provides five ways to construct CIs: normal, basic, percentile, studentized, and BCa. Computing studentized and BCa CIs require additional inputs, such as the influence values and the bootstrap samples of an estimator's variance. With parametric bootstrap, we demonstrate how to obtain normal, basic, and percentile CIs for the fixed effects and $R^2$. In `boot.ci()`, we specify the types of CIs `type = c("norm", "basic", "perc")` to be computed. The index denotes the position of the estimator of interest in the output from `bootstrap_mer()`. 
 <!-- ML: boot.ci() supports five. Would you clarify that studentized and BCa require additional input? WT: sounds good. --> As `boo_par_fr` consists of the bootstrap samples for nine parameters, `lapply()` allows us to compute CIs for all of them simultaneously. 
-<!-- COME BACK LATER -->
 
 \singlespacing
 
