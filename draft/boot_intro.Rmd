@@ -35,6 +35,6 @@ An approximate 95% confidence interval for the sample mean is
 \begin{equation}
 [\bar X^*_{\frac{1}{2}\alpha}; \bar X^*_{1-\frac{1}{2}\alpha}]
 \end{equation}
-where $\bar X^*_{\frac{1}{2}\alpha}$ and $ \bar X^*_{1-\frac{1}{2}\alpha}$ are the $\frac{1}{2}\alpha$ and $1-\frac{1}{2}\alpha$ quantile of the bootstrap distributions. 
+where $\bar X^*_{\frac{1}{2}\alpha}$ and $\bar X^*_{1-\frac{1}{2}\alpha}$ are the $\frac{1}{2}\alpha$ and $1-\frac{1}{2}\alpha$ quantile of the bootstrap distributions. 
 <!-- $\bar X^*_{T, \frac{1}{2}\alpha}$ is the bootstrap  -->
 <!-- where $t^*_{1-\alpha/2}$ denote the the $1 - \alpha/2$ quantile of the bootstrap distribution. For example, if $B=1000$ with at the significance level of $\alpha=.05$, $t^*_{\alpha/2} = t^*_{.975}$. -->

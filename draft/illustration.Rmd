@@ -58,7 +58,6 @@ library(boot)
 library(MuMIn)
 ```
 
-
 \doublespacing
 <!-- YZ: This paragraph is very clear. -->
 In this illustration, we will use five R packages: *lme4* [version 1.1.30\; @bates2015] for multilevel analysis; *MuMIn* [version 1.47.1\; @barton2022] for computing $R^2$; *bootmlm* [version 0.0.1.1000\; @lai2021] for parametric, residual, and cases bootstrap; *lmeresampler* [version 0.2.2\; @loy2022] for wild bootstrap; and *boot* [version 1.3.28\; @canty2021; @davison1997] for computing bootstrap CIs. We perform two models in *lme4*: (a) the full model in @snijders2012, as shown in Model\ \@ref(eq:sj-mod), and (b) the null model (the unconditional model) that has no predictors, given by
