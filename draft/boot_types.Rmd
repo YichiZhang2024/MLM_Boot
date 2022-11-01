@@ -12,7 +12,21 @@ The parametric bootstrap has the strongest assumption among all methods, as it a
 4. Generate the bootstrap samples $\bv{y_j^*}$, with $\bv{y}_j^* = \bv{X}_j \bv{\hat \beta} + \bv{Z}_j\bv{U}_j^* + \bv{\epsilon}_j^*$. 
 5. Refit the two-level model to the bootstrap samples and obtain parameter estimates.
 6. Repeat steps 2-5 $B$ times and compute the bias-corrected estimates and bootstrap standard errors. 
-<!-- ML: need to explain \hat \beta -->
+
+## Residual bootstrap 
+
+Unlike the parametric bootstrap, residual bootstrap does not assume the residuals follow certain distributions. However, the homoscedasticity of residuals assumption still holds [@vanderleeden2008]. The procedure for residual bootstrap is similar to the parametric bootstrap, except the residuals are not drawing from assumed distributions (e.g., normal) but from resampling the reflated empirical residuals of fitted models with replacement. The empirical residuals, calculated by subtracting the predicted response from observed data, <!-- ML: for the u's I don't think it's simply subtraction; they are empirical Bayes estimates. --> have smaller sampling variances than the population variances [@goldstein2011]. Thus, these residuals are shrinkage estimates and will lead to biased results if used directly to form new bootstrapped samples. To overcome this, the residual bootstrap first reflates these shrunken residuals so that their sample variances match the estimated variance components. For level-2 residuals $\hat u_{0_j}, u_{1_j},...$, the empirical covariance matrix of the estimated residuals at level-2 is $S = \frac{\hat U\hat U^T}{J}$. Assume the corresponding model estimated covariance matrix of the random coefficients at level-2 is $R$, then the reflated level-2 residuals can be computed by a transformation $\hat U^* = \hat UA$, such that $\frac{\hat U^{*T}\hat U^*}{J} = R$ [@goldstein2011]. The level-1 residuals can be reflated similarly. Thus, the procedure for residual bootstrap is as follows:
+<!-- ML: What you described above is from Carpenter et al., which is the residual_cgr procedure. The "residual" procedure in bootmlm calculates the model-implied (not sample) covariance matrix of $\hat u$ (of length $J \times r$), denoted as $T_\hat{u}$, and then transform $\hat U$ to $L L^{-1}_\hat{u} \hat u$, where $L_\hat{u}$ is the lower triangular matrix for the Cholesky decomposition of $T_\hat{u}$ such that $L_\hat{u} L^\top_\hat{u} = T_\hat{u}$ and $L$ is the Cholesky decomposition of $T$. -->
+<!-- the empirical variance is $s_{\tilde u}^2 = \sum_{j=1}^{J} \tilde u_{0_j}/J$ and the reflated level-2 residuals can be computed as $\sqrt{\frac{\hat \tau}{s_{\tilde u}^2\tilde u_{0_j}}}$. Similarly, the reflated level-1 residuals can be computed as $\sqrt{\frac{\hat \sigma}{s_{\tilde \epsilon}^2\tilde \epsilon_{ij}}}$ where $s_{\tilde \epsilon}^2 = \sum_{j=1}^{J} \tilde \epsilon_{ij}/J$ is the empirical variance of level-1 residuals.  -->
+
+1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects. Note residuals from both levels need to be centered.
+2. Reflate the centered empirical residuals using the procedure described above.
+3. Draw $J$ level-2 residuals $U_j^*$ from the reflated empirical residuals with replacement.
+4. Draw $J$ level-1 residuals $\epsilon_{j}^*$ of size $n_j$ from the reflated empirical residuals with replacement.
+5. Generate the bootstrap samples, $y^*$, with $y_j^* = X_j\hat\beta + Z_j\hat U_j^* + \hat \epsilon_{j}^*$.
+<!-- 5. After sampled residuals, back transform these residuals by $\hat U = \hat U^*A^{-1}$. Then generate the bootstrap samples, $y^*$, with $y_j^* = X_j\hat\beta + Z_j\hat U_j + \hat \epsilon_j$. -->
+6. Refit the two-level model to bootstrap data and obtain parameter estimates.
+7. Repeat steps 3-6 $B$ times and compute the bias-corrected estimates and standard errors. 
 
 ## Wild bootstrap
 <!-- It was first proposed by @liu1988 for ordinary regression models to account for heterscedastic error terms, following the suggestion by @wu1986 [@mackinnon2006]. @flachaire2005 and @davidson2008 later refined the method and provided support for its performance. Recently, @modugno2015 extended the wild bootstrap to multilevel models. -->
