@@ -1,11 +1,11 @@
 
-In this section, we illustrate three bootstrap approaches (i.e., parametric, residual, and case) with the *bootmlm* R package and the wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain CIs for the fixed effects, intraclass correlations (ICC), and the variance explained by the fixed effects ($R^2$). <!-- ML: Also mention bias-corrected estimates? -->
+In this section, we illustrate three bootstrap approaches (i.e., parametric, residual, and case) with the *bootmlm* R package and the wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain bias-corrected estimates, standard errors, and CIs for the fixed effects, intraclass correlations (ICC), and the variance explained by the fixed effects ($R^2$). <!-- ML: Also mention bias-corrected estimates? WT: done. Thanks-->
 
 The empirical example is an elementary school study by @knuver1993 and @doolaard1999, whose data was shared and used in @snijders2012. This study contains data for 3,758 students (after a list-wise deletion of 258 students), from 211 schools with class sizes ranging between 5 and 36. As shown in @snijders2012 (Chapters 8 and 10), the intelligence variable in the data appeared to violate both assumptions of normality and homoscedasticity. 
 
 <!-- YZ: It'll be helpful to mention which variables violate the homoscedasticity assumptions in snijders2012 [X] WT: good suggestion!-->
 
-We adopt the two-level model in @snijders2012 (Chapter 8), with students nested within schools, to predict language test scores ($\text{lang}_{ij}$) with students' intelligence ($\text{IQ}_{ij}$), gender ($\text{gender}_{ij}$), and family's socio-economic status ($\text{SES}_{ij}$). For the continuous level-1 (student-level) predictors, the standard practice is to disaggregate the between- and within-effects by including the level-2 mean (school-level mean) of each predictor in the model and centering the level-1 predictors by the level-2 means. In this example, $\text{school\_IQ}_j$ is the school mean of intelligence, and $\text{school\_SES}$ is the school mean of socio-economic status. The equation of the full model is <!-- ML: The zeros are not consistent with the ones in the intro -->
+We adopt the two-level model in @snijders2012 (Chapter 8), with students nested within schools, to predict language test scores ($\text{lang}_{ij}$) with students' intelligence ($\text{IQ}_{ij}$), gender ($\text{gender}_{ij}$), and family's socio-economic status ($\text{SES}_{ij}$). For the continuous level-1 (student-level) predictors, the standard practice is to disaggregate the between- and within-effects by including the level-2 mean (school-level mean) of each predictor in the model and centering the level-1 predictors by the level-2 means. In this example, $\text{school\_IQ}_j$ is the school mean of intelligence, and $\text{school\_SES}$ is the school mean of socio-economic status. The equation of the full model is <!-- ML: The zeros are not consistent with the ones in the intro. WT: does it work if I change all of them to a numeric zero (i.e., 0)? I initially thought that $\rlap{0}/$ is needed to indicate a zero matrix. -->
 \begin{align}
 \begin{split}
 \text{Level 1: } & \text{lang}_{ij} = \beta_{0j} + \beta_{1j}\text{IQ}_{ij} + \beta_{2j}\text{SES}_{ij} + \beta_{3j} \text{gender}_{ij} + \beta_{4j} \text{IQ}_{ij} \times \text{SES}_{ij} + e_{ij}, \quad \epsilon_{ij} \sim N(0, \sigma^2)\\
@@ -28,7 +28,7 @@ u_{0j} \\ u_{1j}
 (\#eq:sj-mod)
 \end{split}
 \end{align}
-where $\text{IQ}_j$ and $\text{school\_SES}_j$ are the average intelligence and SES of students within each school, respectively; <!-- ML: I think you've explained school_SES and school_IQ already-->$\gamma_{00}$ is the grand intercept of language scores; $\gamma_{01}$ and $\gamma_{02}$ are the school-level fixed effects of intelligence and SES, respectively; $\gamma_{03}$ is the school-level interaction between intelligence and SES; $\gamma_{10}$ and $\gamma_{20}$ are the student-level fixed effects of intelligence and SES, respectively; $\gamma_{30}$ is the student-level interaction between intelligence and SES; $u_{0j}$ is the random effect from the grand intercept; and $u_{1j}$ is the random effect from the student-level intelligence. For reproducibility, we use the following syntax to download and import the dataset from the website of @snijders2012 to our local R environment. 
+where <!-- ML: I think you've explained school_SES and school_IQ already. WT: good catch, thanks!-->$\gamma_{00}$ is the grand intercept of language scores; $\gamma_{01}$ and $\gamma_{02}$ are the school-level fixed effects of intelligence and SES, respectively; $\gamma_{03}$ is the school-level interaction between intelligence and SES; $\gamma_{10}$ and $\gamma_{20}$ are the student-level fixed effects of intelligence and SES, respectively; $\gamma_{30}$ is the student-level interaction between intelligence and SES; $u_{0j}$ is the random effect from the grand intercept; and $u_{1j}$ is the random effect from the student-level intelligence. For reproducibility, we use the following syntax to download and import the dataset from the website of @snijders2012 to our local R environment. 
 
 <!-- YZ: Maybe add a sentence to explain the difference between $IQ_j$ and $school_IQ_j$? Something like we  [X] WT: added to line 47 -->
 \singlespacing
@@ -40,8 +40,6 @@ sj_dat <- read.table(unz(temp, "mlbook2_r.dat"), header = TRUE)
 ```
 
 \doublespacing
-
-<!-- The `bootmlm` R package is available on github and can be installed using the *remotes* package.  -->
 
 ```{r eval=FALSE, echo=FALSE}
 # install.packages("remotes")
@@ -85,7 +83,6 @@ mod_f <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses +
 
 \doublespacing
 
-<!-- We compute ICC, defined as $\frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$, based on the null model and obtain the fixed effects and variance explained by the fixed effects based on the final model.  -->
 We first define two functions: `fixef_rsq()` takes the full model to compute the fixed effects and the variance explained by the fixed effects ($R^2$), and `icc()` takes the null model to compute ICC. `fixef_rsq()` yields estimates for nine parameters, including the eight fixed effects ($\gamma_{00}, \gamma_{01}, \gamma_{02}, \gamma_{03}, \gamma_{10}, \gamma_{20}, \gamma_{30}, \gamma_{40}$) and the variance explained by the fixed effects ($R^2$). In `icc()`, we compute the ICC, defined as $\rho = \frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2}$, and additionally its asymptotic sampling variance, which will be used to construct the bootstrap-*t*/studentized CI. 
 
 \singlespacing
@@ -129,9 +126,6 @@ round(out, 4)
 
 \doublespacing
 
-<!-- ## Assumption Checking -->
-
-
 ## Parametric Bootstrap
 
 At the time of writing, the `bootstrap_mer()` function in *bootmlm* supports three main types of bootstrapping---parametric, residual, and case. To perform parametric bootstrap, we denote `type = "parametric"` in the function and specify the fitted model object from *lmer* (i.e., `mod_f` and `mod_0`) along with the defined function for obtaining the parameter estimates (i.e., `fixef_rsq()` and `icc()`). `nsim` refers to the number of bootstrap samples ($R$), which is generally recommended to be large for stable estimates. In this illustration, we use $R = 1,999$. 
@@ -145,7 +139,9 @@ boo_par_icc <- bootstrap_mer(mod_0, icc, nsim = 1999L, type = "parametric")
 
 \doublespacing
 
-After running bootstrap resampling, we can use the `boot.ci()` function in *boot* to compute the CIs for the bootstrap samples. For the fixed effects and $R^2$ with parametric bootstrap, this function provides three ways to construct CIs: normal, basic, and percentile.<!-- ML: boot.ci() supports five. Would you clarify that studentized and BCa require additional input? --> As `boo_par_fr` consists of the bootstrap samples for nine parameters, `lapply()` allows us to compute CIs for all of them simultaneously. 
+After running bootstrap resampling, we can use the `boot.ci()` function in *boot* to compute the CIs for the bootstrap samples. This function provides five ways to construct CIs: normal, basic, percentile, studentized, and BCa. Computing studentized and BCa CIs require additional inputs, such as the influence values and the bootstrap samples of an estimator's variance. With parametric bootstrap, we demonstrate how to obtain normal, basic, and percentile CIs for the fixed effects and $R^2$. In `boot.ci()`, we specify the types of CIs `type = c("norm", "basic", "perc")` to be computed. The index denotes the position of the estimator of interest in the output from `bootstrap_mer()`. 
+<!-- ML: boot.ci() supports five. Would you clarify that studentized and BCa require additional input? WT: sounds good. --> As `boo_par_fr` consists of the bootstrap samples for nine parameters, `lapply()` allows us to compute CIs for all of them simultaneously. 
+<!-- COME BACK LATER -->
 
 \singlespacing
 
@@ -191,13 +187,9 @@ boo_wil_icc_ci <- confint(boo_wil_icc, type = "all")
 
 ## Residual Bootstrap
 
-<!-- `bootmlm` implements three methods for residual bootstrap: (a) differentially reflated residual bootstrap, (b) Carpenter-Goldstein-Rashbash's residual bootstrap [CGR; @carpenter2003], and (c) transformational residual bootstrap by @vanderleeden2008.  -->
-
 As the residuals in MLM (denoted as $\tilde u$ and $\tilde \epsilon$) are shrinkage estimates, their sampling variabilities are much smaller than the population random effects (e.g., $\tau^2$ and $\sigma^2$). Residual bootstrap accounts for the small sampling variabilities by rescaling $\tilde u$ and $\tilde \epsilon$. To perform residual bootstrap, we specify `type = "residual"` in `bootmlm::bootstrap_mer`. 
-<!-- The transformational residual bootstrap is particular useful for bounded parameters, such as ICC and $R^2$. Here we demonstrate the first two methods and discuss the transformational residual bootstrap in a separate subsection.  -->
-<!-- YZ: I only described a general idea of reflating residuals in section III. I'll add some additional details of these three types of reflations WT: I took away the other two residual bootstrap methods, as suggested by Mark -->
 
-<!-- The first residual bootstrap method rescales $\tilde u$ and $\tilde e$ to match their sampling variabilities with those of $u$ and $e$. The second method, CGR, rescales the sample covariance matrix of the realized values of the residuals to match the model-implied variance components. To perform the two residual bootstrap methods, specify `type = "residual"` and `type = "residual_cgr"`, respectively, in `bootmlm::bootstrap_mer`.  -->
+<!-- YZ: I only described a general idea of reflating residuals in section III. I'll add some additional details of these three types of reflations WT: I took away the other two residual bootstrap methods, as suggested by Mark -->
 
 \singlespacing
 
@@ -279,40 +271,6 @@ boo_cas1_icc_ci <- boot::boot.ci(boo_cas1_icc,
 
 \doublespacing
 
-## Bootstrap CI With Transformation
-
-For parameters with highly skewed sampling distributions or with bounds (e.g., $R^2$ and ICC), obtaining the CI from the transformed parameters may give better coverage at the 95% intervals [@ukoumunne2003]. For example, we can transform $R^2$ to an unbounded scale with logit transformation, obtain the CIs on the transformed scale, and back-transform the CIs to the bounded scale between 0 and 1. One can also use the same procedure to transform ICC with the stabilizing transformation suggested by @ukoumunne2003. 
-
-Here we demonstrate how to obtain CIs for $R^2$ with the logit transformation. In `boot::boot.ci()`, we additionally provide three inputs: (a) the quantile function of the logistic distribution, `qlogis`, (b) the function of the first derivative of quantile function `function(x) 1 / (x - x^2)`, and (c) the inverse quantile function (i.e., the probability density function) of the logistic distribution. As $R^2$ is the ninth parameter in our defined function `fixef_rsq()` for bootstrapping, we specify `index = 9` to compute the CI for $R^2$. Below is the syntax for applying logit transformation for the bootstrap samples of $R^2$ with parametric, residual, and cases bootstrap. 
-
-\singlespacing
-
-```{r eval=FALSE}
-# Parametric
-boo_par_rsq_ci <- boot.ci(boo_par_fr, h = qlogis, 
-                          hdot = function(x) 1 / (x - x^2), 
-                          hinv = plogis, 
-                          index = 9, type = c("norm", "basic", "perc"))
-# Residual
-boo_res_rsq_ci <- boot.ci(boo_res_fr, L = inf_val_fr, h = qlogis, 
-                          hdot = function(x) 1 / (x - x^2), 
-                          hinv = plogis, 
-                          index = 9, type = c("norm", "basic", "perc", "bca"))
-# Cases (resampling only clusters)
-boo_cas_rsq_ci <- boot.ci(boo_cas_fr, L = inf_val_fr, h = qlogis, 
-                          hdot = function(x) 1 / (x - x^2), 
-                          hinv = plogis, 
-                          index = 9, type = c("norm", "basic", "perc", "bca"))
-# Cases (resampling clusters and individuals)
-boo_cas1_rsq_ci <- boot.ci(boo_cas1_fr, L = inf_val_fr, h = qlogis, 
-                           hdot = function(x) 1 / (x - x^2), 
-                           hinv = plogis, 
-                           index = 9, type = c("norm", "basic", "perc", "bca"))
-```
-
-\doublespacing
-
-
 ## Comparison
 
 ```{r echo=FALSE}
@@ -388,9 +346,43 @@ Tables\ \@ref(tab:comp1)-\ \@ref(tab:comp3) summarize the standard errors and CI
 
 For the school-level fixed effects, the CIs are similar across methods, except for the school-mean intelligence ($\gamma_{01}$). The standard errors are also similar across methods, except for the grand intercept ($\gamma_{00}$) and the school-mean intelligence. The cases bootstrap with resampling at both levels shows the most drastic differences with larger standard errors and wider CIs. For the student-level fixed effects, the standard errors and CIs are similar across methods, except for the student-level intelligence ($\gamma_{10}$) and the interaction between the student-level intelligence and socio-economic status ($\gamma_{30}$). Similarly, the cases bootstrap with resampling at both levels gives larger standard errors and wider CIs.
 
-For $R^2$, the transformed $R^2$, and ICC, all methods yield similar standard errors and CIs are similar. Cases bootstrap with resampling at both levels tend to give a lower normal and basic CIs than other CI methods for ICC. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense -->
+For $R^2$ and ICC, all methods yield similar standard errors and CIs are similar. Cases bootstrap with resampling at both levels tend to give a narrower normal and basic CIs than other CI methods for ICC. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense WT: sounds good, thanks-->
 
 
+## Bootstrap CI With Transformation
+
+For parameters with highly skewed sampling distributions or with bounds (e.g., $R^2$ and ICC), obtaining the CI from the transformed parameters may give better coverage at the 95% intervals [@ukoumunne2003]. For example, we can transform $R^2$ to an unbounded scale with logit transformation, obtain the CIs on the transformed scale, and back-transform the CIs to the bounded scale between 0 and 1. One can also use the same procedure to transform ICC with the stabilizing transformation suggested by @ukoumunne2003. 
+
+Here we demonstrate how to obtain CIs for $R^2$ with the logit transformation. In `boot::boot.ci()`, we additionally provide three inputs: (a) the quantile function of the logistic distribution, `qlogis`, (b) the function of the first derivative of quantile function `function(x) 1 / (x - x^2)`, and (c) the inverse quantile function (i.e., the probability density function) of the logistic distribution. As $R^2$ is the ninth parameter in our defined function `fixef_rsq()` for bootstrapping, we specify `index = 9` to compute the CI for $R^2$. Below is the syntax for applying logit transformation for the bootstrap samples of $R^2$ with parametric, residual, and cases bootstrap. 
+
+\singlespacing
+
+```{r eval=FALSE}
+# Parametric
+boo_par_rsq_ci <- boot.ci(boo_par_fr, h = qlogis, 
+                          hdot = function(x) 1 / (x - x^2), 
+                          hinv = plogis, 
+                          index = 9, type = c("norm", "basic", "perc"))
+# Residual
+boo_res_rsq_ci <- boot.ci(boo_res_fr, L = inf_val_fr, h = qlogis, 
+                          hdot = function(x) 1 / (x - x^2), 
+                          hinv = plogis, 
+                          index = 9, type = c("norm", "basic", "perc", "bca"))
+# Cases (resampling only clusters)
+boo_cas_rsq_ci <- boot.ci(boo_cas_fr, L = inf_val_fr, h = qlogis, 
+                          hdot = function(x) 1 / (x - x^2), 
+                          hinv = plogis, 
+                          index = 9, type = c("norm", "basic", "perc", "bca"))
+# Cases (resampling clusters and individuals)
+boo_cas1_rsq_ci <- boot.ci(boo_cas1_fr, L = inf_val_fr, h = qlogis, 
+                           hdot = function(x) 1 / (x - x^2), 
+                           hinv = plogis, 
+                           index = 9, type = c("norm", "basic", "perc", "bca"))
+```
+
+In this example, the CIs for $R^2$ with transformation are similar to the CIs without transformation, as shown in Table\ \@ref(tab:comp3). 
+
+\doublespacing
 
 
 
