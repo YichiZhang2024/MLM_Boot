@@ -1,45 +1,32 @@
-This section describes the procedure of parametric bootstrap, residuals bootstrap, wild bootstrap, and cases bootstrap in detail. <!-- ML: I didn't describe wild bootstrap in my section. Would you say the wild bootstrap is under residuals bootstrap? --> A two-level random-effect model is used to illustrate these different types of bootstrapping algorithms. 
+This section describes the procedure of parametric bootstrap, wild bootstrap, residual bootstrap, and cases bootstrap in detail. A two-level random-effect model is used to illustrate these different types of bootstrapping algorithms. 
+<!-- ML: I didn't describe wild bootstrap in my section. Would you say the wild bootstrap is under residuals bootstrap? -->
 
 ## Parametric bootstrap 
 
-The parametric bootstrap has the strongest assumption among all methods, as it assumes a correct function form and residual distributions [@leeden2008]. Specifically, the level-1 residuals are assumed to follow a normal distribution, $\epsilon_j \sim N(\rlap{0}/, \hat\sigma^2I_{n_j})$, and the level-2 residuals are assumed to follow a bivariate normal distribution, $U_j \sim N(\rlap{0}/, \hat \Omega)$. <!-- ML: bivariate or multivariate normal? and I saw Winnie used e while Yichi used epsilon. Also, use bold symbols to be consistent with Winnie's. --> The procedure for parametric bootstrap is described below.
+The parametric bootstrap has the strongest assumption among all methods, as it assumes a correct function form and residual distributions [@vanderleeden2008]. Specifically, the level-1 residuals are assumed to follow a normal distribution, $\bv{\epsilon_j} \sim N(\rlap{0}/, \hat\sigma^2\bv{I}_{n_j})$, and the level-2 residuals are assumed to follow a multivariate normal distribution, $\bv {U}_j \sim N(\bv{\rlap{0}}/, \bv{\hat \Omega})$. Let $\bv{\hat \beta}$ be the model estimates from the linear mixed-effects model. The procedure for parametric bootstrap is described below.
+<!-- ML: bivariate or multivariate normal? and I saw Winnie used e while Yichi used epsilon. Also, use bold symbols to be consistent with Winnie's. -->
 
 1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects.
-2. Draw $J$ sets of level-2 residuals $U_j^*$ from a bivariate normal distribution.
-3. Draw $J$ level-1 residuals $\epsilon_j^*$ of size $n_j$ from a normal distribution.
-4. Generate the bootstrap samples $y_j^*$, with $y_j^* = X_j\hat \beta + Z_jU_j^* + \epsilon_j^*$. <!-- ML: need to explain \hat \beta -->
+2. Draw $J$ sets of level-2 residuals $\bv{U}_j^*$ from a bivariate normal distribution.
+3. Draw $J$ level-1 residuals $\bv{\epsilon}_j^*$ of size $n_j$ from a normal distribution.
+4. Generate the bootstrap samples $\bv{y_j^*}$, with $\bv{y}_j^* = \bv{X}_j \bv{\hat \beta} + \bv{Z}_j\bv{U}_j^* + \bv{\epsilon}_j^*$. 
 5. Refit the two-level model to the bootstrap samples and obtain parameter estimates.
 6. Repeat steps 2-5 $B$ times and compute the bias-corrected estimates and bootstrap standard errors. 
-
-## Residuals bootstrap 
-
-Unlike the parametric bootstrap, residuals bootstrap does not assume the residuals follow certain distributions. However, the homoscedasticity of residuals assumption still holds [@leeden2008]. The procedure for residuals bootstrap is similar to the parametric bootstrap, except the residuals are not drawing from assumed distributions (e.g., normal) but from resampling the reflated empirical residuals of fitted models with replacement. The empirical residuals, calculated by subtracting the predicted response from observed data, <!-- ML: for the u's I don't think it's simply subtraction; they are empirical Bayes estimates. --> have smaller sampling variances than the population variances [@goldstein2011]. Thus, these residuals are shrinkage estimates and will lead to biased results if used directly to form new bootstrapped samples. To overcome this, the residuals bootstrap first reflates these shrunken residuals so that their sample variances match the estimated variance components. For level-2 residuals $\hat u_{0_j}, u_{1_j},...$, the empirical covariance matrix of the estimated residuals at level-2 is $S = \frac{\hat U\hat U^T}{J}$. Assume the corresponding model estimated covariance matrix of the random coefficients at level-2 is $R$, then the reflated level-2 residuals can be computed by a transformation $\hat U^* = \hat UA$, such that $\frac{\hat U^{*T}\hat U^*}{J} = R$ [@goldstein2011]. The level-1 residuals can be reflated similarly. Thus, the procedure for residual bootstrap is as follows:
-<!-- ML: What you described above is from Carpenter et al., which is the residual_cgr procedure. The "residual" procedure in bootmlm calculates the model-implied (not sample) covariance matrix of $\hat u$ (of length $J \times r$), denoted as $T_\hat{u}$, and then transform $\hat U$ to $L L^{-1}_\hat{u} \hat u$, where $L_\hat{u}$ is the lower triangular matrix for the Cholesky decomposition of $T_\hat{u}$ such that $L_\hat{u} L^\top_\hat{u} = T_\hat{u}$ and $L$ is the Cholesky decomposition of $T$. -->
-<!-- the empirical variance is $s_{\tilde u}^2 = \sum_{j=1}^{J} \tilde u_{0_j}/J$ and the reflated level-2 residuals can be computed as $\sqrt{\frac{\hat \tau}{s_{\tilde u}^2\tilde u_{0_j}}}$. Similarly, the reflated level-1 residuals can be computed as $\sqrt{\frac{\hat \sigma}{s_{\tilde \epsilon}^2\tilde \epsilon_{ij}}}$ where $s_{\tilde \epsilon}^2 = \sum_{j=1}^{J} \tilde \epsilon_{ij}/J$ is the empirical variance of level-1 residuals.  -->
-
-1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects. Note residuals from both levels need to be centered.
-2. Reflate the centered empirical residuals using the procedure described above.
-3. Draw $J$ level-2 residuals $U_j^*$ from the reflated empirical residuals with replacement.
-4. Draw $J$ level-1 residuals $\epsilon_{j}^*$ of size $n_j$ from the reflated empirical residuals with replacement.
-5. Generate the bootstrap samples, $y^*$, with $y_j^* = X_j\hat\beta + Z_j\hat U_j^* + \hat \epsilon_{j}^*$.
-<!-- 5. After sampled residuals, back transform these residuals by $\hat U = \hat U^*A^{-1}$. Then generate the bootstrap samples, $y^*$, with $y_j^* = X_j\hat\beta + Z_j\hat U_j + \hat \epsilon_j$. -->
-6. Refit the two-level model to bootstrap data and obtain parameter estimates.
-7. Repeat steps 3-6 $B$ times and compute the bias-corrected estimates and standard errors. 
+<!-- ML: need to explain \hat \beta -->
 
 ## Wild bootstrap
+<!-- It was first proposed by @liu1988 for ordinary regression models to account for heterscedastic error terms, following the suggestion by @wu1986 [@mackinnon2006]. @flachaire2005 and @davidson2008 later refined the method and provided support for its performance. Recently, @modugno2015 extended the wild bootstrap to multilevel models. -->
 
-The wild bootstrap is a resampling algorithm developed for models with heteroscedastic errors [@wu1986]. It was first proposed by @liu1988 for ordinary regression models to account for heterscedastic error terms, following the suggestion by @wu1986 [@mackinnon2006]. @flachaire2005 and @davidson2008 later refined the method and provided support for its performance. Recently, @modugno2015 extended the wild bootstrap to multilevel models.
-
-The central idea of the wild bootstrap is to replace the heteroscedastic residuals $\hat v_j = y_j -  X_j \hat \beta$ with the heteroscedasticity consistent (HC) covariance matrix estimator proposed by [@mackinnon1985], and multiply them with a random variable $w$ drawn from an auxiliary distribution with mean 0 and unit variance, then generate the bootstrap responses and compute the statistic of interest [@liu1988]. <!-- ML: the previous sentence can be broken down into two --> The commonly used covariance matrix estimators are HC2 and HC3, which are shown to outperform others in power [@mackinnon1985; @davidson1993]. Assume $H_j = X_j(X^TX)^{-1}X_j^T$ is the $j$th diagonal block of the orthogonal project matrix:
+The wild bootstrap is a resampling algorithm developed for models with heteroscedastic errors [@wu1986; @modugno2015]. The central idea of the wild bootstrap is to replace the heteroscedastic residuals $\bv{\hat v}_j = \bv{y}_j -  \bv{X}_j \bv{\hat \beta}$ with the heteroscedasticity consistent (HC) covariance matrix estimator proposed by [@mackinnon1985], and multiply them with a random variable $m$ drawn from an auxiliary distribution with mean 0 and unit variance. In other words, instead of resampling the residuals directly, wild bootstrap transforms the residuals and draws bootstrap errors from auxiliary distributions. Then we generate the bootstrap responses from this joint distribution, $m\bv v$, and compute the statistic of interest [@liu1988]. The commonly used covariance matrix estimators are HC2 and HC3, which are shown to outperform others in power [@mackinnon1985; @davidson1993]. Assume $\bv{H}_j = \bv{X}_j(\bv{X}^T\bv{X})^{-1}\bv{X}_j^T$ is the $j$th diagonal block of the orthogonal project matrix:
 \begin{equation}
-\text{HC}_2: \tilde v_j = \text{diag}(I_{n_j} - H_j)^{-1/2} \circ \hat v_j 
+\text{HC}_2: \bv{\tilde v}_j = \text{diag}(\bv{I}_{n_j} - \bv{H}_j)^{-1/2} \circ \bv{\hat v}_j 
 \end{equation}
 \begin{equation}
-\text{HC}_3: \tilde v_j = \text{diag}(I_{n_j} - H_j) \circ \hat v_j,
+\text{HC}_3: \bv{\tilde v}_j = \text{diag}(\bv{I}_{n_j} - \bv{H}_j) \circ \bv{\hat v}_j,
 \end{equation}
 where $\circ$ is the entry-wise product [@modugno2015]. The two commonly used auxiliary distributions are $F_1$, proposed by @mammen1993 and $F_2$, proposed by @liu1988, where 
 \begin{equation}
-  F_1: w =
+  F_1: m =
   \begin{cases}
     -(\sqrt{5} -1) /2 \ \ \text{with probability} & p = (\sqrt{5} + 1)/2 \sqrt{5})\\
     (\sqrt{5} + 1) /2  \ \ \text{with probability} & p = 1 - p
@@ -47,40 +34,57 @@ where $\circ$ is the entry-wise product [@modugno2015]. The two commonly used au
 \end{equation}
 and
 \begin{equation}
-  F_2: w =
+  F_2: m =
   \begin{cases}
     1 \ \ \text{with probability} & p = \frac{1}{2}\\
     -1 \ \ \text{with probability} & p = \frac{1}{2}
   \end{cases}
 \end{equation}
 
-The specific procedure is listed below [@modugno2015, p.8]:
+The specific procedure for multilevel wild bootstrap is listed below [@modugno2015, p.8]:
 
-<!-- ML: I tend to think of this as a procedure within residuals bootstrap, where you can have a subsection, and can say which part is different. Also, is the procedure below for MLM? Do they resample the u's and the e's separately? -->
-1. Draw a random sample $w$ with $j$ number of values from the auxiliary distribution with mean zero and unit variance such as $F_1$ and $F_2$.
-2. Compute the marginal residuals $\hat v = \bv y_j - \bv X_j \bv \beta$ <!-- ML: missing subscript for v_j? --> and transform the residuals to be heteroscedastic consistent $\tilde v$.
-3. Generate the bootstrap samples $\bv y_j^* = X_j \bv {\hat \beta} + \bv {\tilde v_j} w_j.$
+1. Draw a random sample $m$ with $J$ number of values from the auxiliary distribution with mean zero and unit variance such as $F_1$ and $F_2$.
+2. Compute the marginal residuals $\bv{\hat v_j} = \bv{y}_j - \bv{X}_j \bv \beta$ and transform the residuals to be heteroscedastic consistent $\bv{\tilde v}$.
+3. Generate the bootstrap samples $\bv{y}_j^* = \bv{X}_j \bv {\hat \beta} + \bv {\tilde v_j} m_j.$
 4. Refit the two-level model to bootstrap data and obtain parameter estimates.
-5. repeat steps 1-4 $B$ times and compute the bias-corrected estimates and standard errors. 
+5. Repeat steps 1-4 $B$ times and compute the bias-corrected estimates and standard errors. 
 
 The wild bootstrap is expected to perform better than the other bootstraps under heteroscedasticity because it uses a two-point distribution to generate errors [@mackinnon2017;@hapuhinna2021]. Other bootstraps, such as the parametric bootstrap, assume the error follows i.i.d with equal variance. Under these assumptions, the generated responses based on the resampled residuals are close to the true responses. However, when heteroscedasticity exists, the variance depends on the predictor, causing the generated responses to differ from the true responses [@hapuhinna2021]. In contrast, the wild bootstrap uses a two-point distribution such that the generated residuals preserve the variances and the within-cluster covariances of the errors [@mackinnon2017]. 
+<!-- ML: I tend to think of this as a procedure within residuals bootstrap, where you can have a subsection, and can say which part is different. Also, is the procedure below for MLM? Do they resample the u's and the e's separately? -->
+
+## Residual bootstrap 
+
+Unlike the parametric bootstrap, residual bootstrap does not assume that the residuals follow certain distributions. However, the homoscedasticity of residuals assumption still needs to hold [@vanderleeden2008]. The procedure for residual bootstrap is similar to the parametric bootstrap, except the residuals are not drawing from assumed distributions (e.g., normal) but from the reflated empirical residuals of fitted models with replacement. The empirical residuals, extracted from a fitted model, have smaller variances than the population variances [@goldstein2011]. Thus, these residuals are shrinkage estimates and will lead to biased results if used directly to form new bootstrapped samples. To overcome this, the residual bootstrap first reflates these shrunken residuals so that their model-implied variances match the population variance. For level-2 residuals $\bv{\hat u}$, the model-implied covariance matrix of the estimated residuals at level-2 is denoted as $\bv{T}_{\hat u}$. We transform $\bv{\hat U}$ to $\bv{L} \bv{L}^{-1}_{\hat u} \bv{\hat u}$, where $\bv{L}_{\hat u}$ is the lower triangular matrix for the Cholesky decomposition of $\bv{T}_{\hat u}$ such that $\bv{L}_{\hat u} \bv{L}^\top_{\hat u} = \bv{T}_{\hat u}$ and $\bv{L}$ is the Cholesky decomposition of $\bv{T}$. The level-1 residuals can be reflated similarly [@lai2021]. The procedure for residual bootstrap is as follows:
+<!-- Assume the corresponding model estimated covariance matrix of the random coefficients at level-2 is $R$, then the reflated level-2 residuals can be computed by a transformation $\hat U^* = \hat UA$, such that $\frac{\hat U^{*T}\hat U^*}{J} = R$ [@goldstein2011].  -->
+<!-- ML: for the u's I don't think it's simply subtraction; they are empirical Bayes estimates. -->
+<!-- ML: What you described above is from Carpenter et al., which is the residual_cgr procedure. The "residual" procedure in bootmlm calculates the model-implied (not sample) covariance matrix of $\hat u$ (of length $J \times r$), denoted as $T_\hat{u}$, and then transform $\hat U$ to $L L^{-1}_\hat{u} \hat u$, where $L_\hat{u}$ is the lower triangular matrix for the Cholesky decomposition of $T_\hat{u}$ such that $L_\hat{u} L^\top_\hat{u} = T_\hat{u}$ and $L$ is the Cholesky decomposition of $T$. -->
+
+1. Fit a two-level model to data and obtain the estimates for fixed effects and random effects.
+2. Reflate the centered empirical residuals using the procedure described above.
+3. Draw $J$ level-2 residuals $\bv{U}_j^*$ from the reflated empirical residuals with replacement.
+4. Draw $J$ level-1 residuals $\bv{\epsilon}_{j}^*$ of size $n_j$ from the reflated empirical residuals with replacement.
+5. Generate the bootstrap samples, $\bv{y}^*$, with $\bv{y}_j^* = \bv{X}_j \bv{\hat \beta} + \bv{Z}_j \bv{\hat U}_j^* + \bv{\hat \epsilon}_{j}^*$.
+6. Refit the two-level model to bootstrap data and obtain parameter estimates.
+7. Repeat steps 3-6 $B$ times and compute the bias-corrected estimates and standard errors.
+
+Note here we focus on one type of reflating process. There are alternative procedures, such as the Carpenter-Goldstein-Rashbash’s residual bootstrap described in @carpenter2003 and the transformational residual bootstrap by @vanderleeden2008.
 
 ## Cases bootstrap 
 
-The cases bootstrap has the least assumption because it only assumes a correct specification of hiearchical structure. It resamples the observations (including predictors $X_j$ and $Z_j$) with replacement [@davison1997]. There are multiple versions of cases bootstrap for multilevel data [@leeden2008]. For any version, the cases bootstrap keeps each observed response $y_{ij}$ pairing with the observed predictors $X_{ij}$ and $Z_{ij}$. Note that the level-1 sample size could be different from the original sample size when the clusters are unbalanced. One version of cases bootstrap is to only resample level-2 units and keeps level-1 units intact.
+Similar to the wild bootstrap, the cases bootstrap can overcome the problem of heteroscedasticity. The cases bootstrap has the least assumption among all bootstrapping procedures because it only assumes a correct specification of hiearchical structure. It resamples the observations (including predictors $\bv{X}_j$ and $\bv{Z}_j$) with replacement [@davison1997]. There are multiple versions of cases bootstrap for multilevel data [@vanderleeden2008]. For any version, the cases bootstrap keeps each observed response $y_{ij}$ pairing with the observed predictors $X_{ij}$ and $Z_{ij}$. Note that the level-1 sample size could be different from the original sample size when the clusters are unbalanced. One version of cases bootstrap is to only resample level-2 units and keeps level-1 units intact.
 
 1. Draw a sample of $\{j^*_k, k = 1,...,J\}$ from level-2 units with replacement. 
 2. For each $k$, draw a sample of entire cases with replacement from level-2 unit $j = j^*_k$ so that we have a set of data ${(y_{ik}^*, X_{ik}^*, Z_{ik}^*), i = 1,...,n_k^*}$
-3. Refit the two-level model to bootstrap data and obtain parameter estimates.
+3. Refit the two-level model to the bootstrap data and obtain parameter estimates.
 4. Repeat steps 1-4 $B$ times and compute the bias-corrected estimates and standard errors. 
 
 An alternative procedure is to first resample the level-2 units and then resample level-1 units within each cluster. 
 
 1. Draw one entire level-2 unit $(y_j, X_j, Z_j)$ that has $n_j$ level-1 cases with replacement.
 2. Draw a sample $(y_j^*, X_j^*, Z_j^*)$ of size $n_j$ with replacement from this level-2 unit.
-3. Repeat step 1-2 $J$ times
+3. Repeat steps 1-2 $J$ times
 4. Refit the two-level model to bootstrap data and obtain parameter estimates.
 5. Repeat steps 1-4 $B$ times and compute the bias-corrected estimates and standard errors. 
 
-A third version is to resample both level-2 and level-1 units. <!-- ML: I'm not sure how this version is different from the previous version -->
-Selecting the appropriate cases bootstrap procedure depends on the degree of randomness of the sampling and the sample size for both levels [@leeden2008]. For example, if the repeated measures from individuals are collected, then it is appropriate to resample only individuals (level-2). However, if individuals' responses from multiple counties are collected, then resampling only the individuals (level-1) would be sufficient. <!-- ML: do you mean resampling individuals within counties? Meaning that the counties are fixed (which is inconsistent with MLM)? And do you mean countries? --> Compared to other bootstrap algorithms, cases bootstrap is less efficient but provides consistent estimators when the assumptions are violated [@leeden2008]. 
+Selecting the appropriate cases bootstrap procedure depends on the degree of randomness of the sampling and the sample size for both levels [@vanderleeden2008]. For example, if the repeated measures from individuals are collected, then it is appropriate to resample only individuals (level-2). However, if individuals' responses from multiple countries are collected, then researchers could consider first resample the countries with replacement, then reseample the individuals within selected countries with replacement. Compared to other bootstrap algorithms, cases bootstrap is less efficient but provides consistent estimators when the normality or homoscedasticity assumptions are violated [@vanderleeden2008]. 
+<!-- ML: do you mean resampling individuals within counties? Meaning that the counties are fixed (which is inconsistent with MLM)? And do you mean countries? -->
