@@ -378,6 +378,8 @@ boo_cas1_rsq_ci <- boot.ci(boo_cas1_fr, L = inf_val_fr, h = qlogis,
                            index = 9, type = c("norm", "basic", "perc", "bca"))
 ```
 
+\doublespacing
+
 In this example, the CIs for $R^2$ with transformation are similar to the CIs without transformation, as shown in Table\ \@ref(tab:comp3). 
 
 \doublespacing
