@@ -1,28 +1,27 @@
 
-Bootstrap methods are useful for computing standard errors, confidence intervals, and testing hypotheses for an estimator when some model assumptions are violated [@efron1993; @davison1997; @wilcox2017]. <!-- ML: Check reference list for the Wilcox entries WT: does it look right now?--> The general idea of bootstrapping is to create many samples by repeatedly resampling observations <!-- ML: how about "repeatedly resampling observations . . . ?" WT: sounds good --> and computing the estimator for each simulated sample. The bootstrap process yields an approximate distribution of the estimator, from which the standard errors and confidence intervals can be calculated. The bootstrap methods have been shown to perform well in controlling the Type I error rates and maintaining accurate confidence interval coverages in situations such as when the normality assumption is violated [e.g., @efron1988; @strube1988] and the homoscedasticity assumption fails [e.g., @wilcox2001; @krishnamoorthy2007]. As we will <!--ML: Use active voice for a few of these sentences, if possible. WT: sounds good --> discuss in the following sections, there are many bootstrap procedures, some better than others in controlling the Type I error rates in certain situations. We begin with an introduction of percentile bootstrap for computing confidence interval and standard error for the sample mean. <!-- ML: We need to resolve the inconsistency in naming. WT: changed to percentile bootstrap--> 
+Bootstrap methods are useful for computing standard errors, CIs, and testing hypotheses for an estimator when some model assumptions are violated [@efron1993; @davison1997; @wilcox2017]. <!-- ML: Check reference list for the Wilcox entries WT: does it look right now?--> The general idea of bootstrapping is repeatedly resampling observations <!-- ML: how about "repeatedly resampling observations . . . ?" WT: sounds good --> and computing the estimator for each resample. The bootstrap process yields an approximate distribution of the estimator, from which the standard errors and CIs can be calculated. The bootstrap methods have been shown to perform well in controlling the Type I error rates and maintaining accurate CI coverages in situations such as when the normality assumption is violated [e.g., @efron1988; @strube1988] and the homoscedasticity assumption fails [e.g., @wilcox2001; @krishnamoorthy2007]. As we will <!--ML: Use active voice for a few of these sentences, if possible. WT: sounds good --> discuss in the following sections, there are many bootstrap procedures, some better than others in controlling the Type I error rates in certain situations. We begin with an introduction of percentile bootstrap for computing CI and standard error for the sample mean. <!-- ML: We need to resolve the inconsistency in naming. WT: changed to percentile bootstrap--> 
 
 Consider that we collected data with $n$ observations, $X_1, \dots, X_n$, and aim to test against the null hypothesis, $H_0: \mu_0 = 0$, that the population mean is zero. <!-- ML: so \mu_0 = 0? WT: thanks!--> 
 Recall that the student *t-*statistic is 
 \begin{equation}
-T = \frac{\bar X - \mu_0}{se}, 
+T = \frac{\bar X - \mu_0}{\hat{se}_N}, 
 \end{equation}
-where $\bar X = \frac{1}{n}\sum_i^n X_i$ is the sample mean, $\mu_0$ is the null value of the mean, $se=s/\sqrt{n}$ is the standard error of the mean, and $s$ is the sample standard deviation.  
-<!-- ML: I don't think T is necessarily symmetric when normality holds, unless H_0 is true. Otherwise, it is a noncentral-t, which is not symmetric. If you meant under H_0, then you can just say it follows a t distribution. --> The 95% confidence interval for $\bar X$ can be constructed as
+where $\bar X = \frac{1}{n}\sum_i^n X_i$ is the sample mean, $\mu_0$ is the null value of the mean, $\hat{se}_N=s/\sqrt{n}$ is the asymptotic standard error of the mean, and $s$ is the sample standard deviation. <!-- ML: I don't think T is necessarily symmetric when normality holds, unless H_0 is true. Otherwise, it is a noncentral-t, which is not symmetric. If you meant under H_0, then you can just say it follows a t distribution. --> The 95% CI for $\bar X$ can be constructed as
 \begin{equation}
-[\bar X-t_{1-\alpha/2} se, \bar X - t_{\alpha/2} se],  
+[\bar X-t_{1-\frac{1}{2}\alpha} \hat{se}_N, \bar X - t_{\frac{1}{2}\alpha} \hat{se}_N],  
 \end{equation}
-where $t_{1-\alpha/2}$ and $t_{\alpha/2}$ are the $1-\alpha/2$ and $t_{\alpha/2}$ quantiles of $T$. 
+where $t_{1-\frac{1}{2}\alpha}$ and $t_{\frac{1}{2}\alpha}$ are the $1-\frac{1}{2}\alpha$ and $\frac{1}{2}\alpha$ quantiles of $T$. 
 
 
 <!-- ML: I think the bootstrap-t is a bit more complicated than other procedures. And I don't think it helps to start with constructing CIs before talking about the sampling algorithms. How about talking about the sampling with replacement part first? And then just talk about the percentile CI instead of the bootstrap-t CI? -->
 However, suppose our data has a skewed distribution and violates the normality assumption. To account for nonnormality, we perform bootstrapping in the following procedure [@wilcox2017; @efron1993]:
 
 1. Randomly draw $n$ observations from the observed data, *with replacement*, to create a bootstrap sample, $X^*_1, \dots, X_n^*$. 
-2. After gathering a bootstrap sample, compute the *bootstrap sample mean*, $\bar X^*_b = \frac{1}{n}\sum_i^n X^*_i$. 
-3. Repeat steps (1) and (2) $B$ times to obtain $B$ bootstrap sample means, $\bar X^*_1, \dots, \bar X^*_B$. 
-4. Arrange the bootstrap sample means in ascending order to get $\bar X^*_{(1)} \leq \bar X^*_{(2)} \leq \dots \leq \bar X^*_{(B)}$
-
-Based on the bootstrap samples, we can estimate the sample mean by taking the average of the bootstrap sample means, $\bar X^*=\frac{1}{B}\sum_b^BX^*_b$. The bias of the sample mean, $\bar X$, is estimated by the bias of $\bar X^*$ [@efron1993; @vanderleeden2008], given by
+2. For the bootstrap sample, compute the *bootstrap sample mean*, $\bar X^*_b = \frac{1}{n}\sum_i^n X^*_i$. 
+3. Repeat steps 1 and 2 $B$ times to obtain $B$ bootstrap sample means, $\bar X^*_1, \dots, \bar X^*_B$. 
+4. Arrange the bootstrap sample means in ascending order to get $\bar X^*_{(1)} \leq \bar X^*_{(2)} \leq \dots \leq \bar X^*_{(B)}$. 
+Based on the bootstrap samples, we can estimate the sample mean with the average of the bootstrap sample means, $\bar X^*=\frac{1}{B}\sum_b^B \bar X^*_b$, and the standard error of the mean with the standard deviation of the bootstrap sample means,
+$\hat{se}^* = \sqrt{\frac{1}{B}\sum_b^B (\bar X^*_b - \bar X^*)^2}$. The bias of the sample mean, $\bar X$, is estimated by the bias of $\bar X^*$ [@efron1993; @vanderleeden2008], given by
 \begin{equation}
 \hat{\text{Bias}}(\bar X) = \hat{\text{Bias}}(\bar X^*) = \bar X^* - \bar X,
 \end{equation}
@@ -30,8 +29,7 @@ and the bias-corrected estimator of $\bar X$ is
 \begin{equation}
 \bar X_{corrected} = 2 \bar X - \bar X^* = \bar X - \hat{\text{Bias}}(\bar X).
 \end{equation}
-
-An approximate 95% confidence interval for the sample mean is
+An approximate 95% CI for the sample mean is
 \begin{equation}
 [\bar X^*_{\frac{1}{2}\alpha}; \bar X^*_{1-\frac{1}{2}\alpha}]
 \end{equation}

@@ -9,6 +9,11 @@ library(boot)
 library(MuMIn)
 library(tidyverse)
 
+# load data
+temp <- tempfile()
+download.file("https://www.stats.ox.ac.uk/~snijders/mlbook2_r_dat.zip", temp)
+sj_dat <- read.table(unz(temp, "mlbook2_r.dat"), header = TRUE)
+
 # unconditional model
 mod_0 <- lmer(langPOST ~ (1 | schoolnr), data = sj_dat)
 # final model
@@ -107,24 +112,24 @@ saveRDS(boo_wil_icc, "draft/illustration_boo_res/boo_wil_icc.rds")
 
 # Load boot results ------------------------------------------------------------
 
-boo_par_fr <- readRDS("illustration_boo_res/boo_par_fr.rds")
-boo_par_icc <- readRDS("illustration_boo_res/boo_par_icc.rds")
+boo_par_fr <- readRDS("draft/illustration_boo_res/boo_par_fr.rds")
+boo_par_icc <- readRDS("draft/illustration_boo_res/boo_par_icc.rds")
 
-boo_res_fr <- readRDS("illustration_boo_res/boo_res_fr.rds")
-boo_cgr_fr <- readRDS("illustration_boo_res/boo_cgr_fr.rds")
-boo_res_icc <- readRDS("illustration_boo_res/boo_res_icc.rds")
-boo_cgr_icc <- readRDS("illustration_boo_res/boo_cgr_icc.rds")
+boo_res_fr <- readRDS("draft/illustration_boo_res/boo_res_fr.rds")
+boo_cgr_fr <- readRDS("draft/illustration_boo_res/boo_cgr_fr.rds")
+boo_res_icc <- readRDS("draft/illustration_boo_res/boo_res_icc.rds")
+boo_cgr_icc <- readRDS("draft/illustration_boo_res/boo_cgr_icc.rds")
 
-inf_val_fr <- readRDS("illustration_boo_res/inf_val_fr.rds")
-inf_val_icc <- readRDS("illustration_boo_res/inf_val_icc.rds")
+inf_val_fr <- readRDS("draft/illustration_boo_res/inf_val_fr.rds")
+inf_val_icc <- readRDS("draft/illustration_boo_res/inf_val_icc.rds")
 
-boo_cas_fr <- readRDS("illustration_boo_res/boo_cas_fr.rds")
-boo_cas1_fr <- readRDS("illustration_boo_res/boo_cas1_fr.rds")
-boo_cas_icc <- readRDS("illustration_boo_res/boo_cas_icc.rds")
-boo_cas1_icc <- readRDS("illustration_boo_res/boo_cas1_icc.rds")
+boo_cas_fr <- readRDS("draft/illustration_boo_res/boo_cas_fr.rds")
+boo_cas1_fr <- readRDS("draft/illustration_boo_res/boo_cas1_fr.rds")
+boo_cas_icc <- readRDS("draft/illustration_boo_res/boo_cas_icc.rds")
+boo_cas1_icc <- readRDS("draft/illustration_boo_res/boo_cas1_icc.rds")
 
-boo_wil_fr <- readRDS("illustration_boo_res/boo_wil_fr.rds")
-boo_wil_icc <- readRDS("illustration_boo_res/boo_wil_icc.rds")
+boo_wil_fr <- readRDS("draft/illustration_boo_res/boo_wil_fr.rds")
+boo_wil_icc <- readRDS("draft/illustration_boo_res/boo_wil_icc.rds")
 
 
 # Confidence intervals ---------------------------------------------------------
@@ -133,7 +138,7 @@ boo_wil_icc <- readRDS("illustration_boo_res/boo_wil_icc.rds")
 boo_par_fr_ci <- lapply(1:9, function(i) {
   boot.ci(boo_par_fr, type = c("norm", "basic", "perc"), index = i)
 })
-boo_par_icc_ci <- boot.ci(boo_par_icc, type = c("norm", "basic", "perc", "stud"))
+boo_par_icc_ci <- boot.ci(boo_par_icc, type = c("norm", "basic", "perc"))
 
 # Residual bootstrap
 boo_res_fr_ci <- lapply(1:9, function(i) {
@@ -156,7 +161,7 @@ boo_cas_icc_ci <- boot::boot.ci(boo_cas_icc,
 # Cases bootstrap (resampling both clusters and individuals)
 boo_cas1_fr_ci <- lapply(1:9, function(i) {
   boot::boot.ci(boo_cas1_fr, type = c("norm", "basic", "perc", "bca"), 
-                index = i, L = inf_val_fr)
+                index = i, L = inf_val_fr[[i]])
 })
 boo_cas1_icc_ci <- boot::boot.ci(boo_cas1_icc, 
                                  type = c("norm", "basic", "perc", "bca", "stud"), 
@@ -171,15 +176,15 @@ boo_par_rsq_ci <- boot.ci(boo_par_fr, h = qlogis,
                           hdot = function(x) 1 / (x - x^2), 
                           hinv = plogis, 
                           index = 9, type = c("norm", "basic", "perc"))
-boo_res_rsq_ci <- boot.ci(boo_res_fr, L = inf_val_fr, h = qlogis, 
+boo_res_rsq_ci <- boot.ci(boo_res_fr, L = inf_val_fr[[9]], h = qlogis, 
                           hdot = function(x) 1 / (x - x^2), 
                           hinv = plogis, 
                           index = 9, type = c("norm", "basic", "perc", "bca"))
-boo_cas_rsq_ci <- boot.ci(boo_cas_fr, L = inf_val_fr, h = qlogis, 
+boo_cas_rsq_ci <- boot.ci(boo_cas_fr, L = inf_val_fr[[9]], h = qlogis, 
                           hdot = function(x) 1 / (x - x^2), 
                           hinv = plogis, 
                           index = 9, type = c("norm", "basic", "perc", "bca"))
-boo_cas1_rsq_ci <- boot.ci(boo_cas1_fr, L = inf_val_fr, h = qlogis, 
+boo_cas1_rsq_ci <- boot.ci(boo_cas1_fr, L = inf_val_fr[[9]], h = qlogis, 
                            hdot = function(x) 1 / (x - x^2), 
                            hinv = plogis, 
                            index = 9, type = c("norm", "basic", "perc", "bca"))
@@ -203,6 +208,10 @@ get_se <- function(out) {
   } else if (any(class(out) == "lmeresamp")) {
     unname(out$stats$se)
   }
+}
+comma <- function(x) {
+  if (is.null(x)) NULL
+  else format(round(x, digits = 2), big.mark = ",")
 }
 # print confidence interval
 print_ci <- function(boo_ci, type) {
@@ -233,25 +242,25 @@ get_ci <- function(boo_ci, type) {
 orig_est <- c(boo_par_fr$t0, NA, boo_par_icc$t0[1]) |> round(2)
 boo_est <- t(data.frame(
   par = c(get_est(boo_par_fr), NA, get_est(boo_par_icc)[1]), 
-  wild = c(get_est(boo_wil_fr), NA, get_est(boo_wil_icc)[1]), 
   res = c(get_est(boo_res_fr), NA, get_est(boo_res_icc)[1]), 
+  wild = c(get_est(boo_wil_fr), NA, get_est(boo_wil_icc)[1]), 
   cas = c(get_est(boo_cas_fr), NA, get_est(boo_cas_icc)[1]), 
   cas1 = c(get_est(boo_cas1_fr), NA, get_est(boo_cas1_icc)[1])
 )) |> round(2)
 boo_se <- t(data.frame(
   par = c(get_se(boo_par_fr), NA, get_se(boo_par_icc)[1]), 
-  wild = c(get_se(boo_wil_fr), NA, get_se(boo_wil_icc)[1]), 
   res = c(get_se(boo_res_fr), NA, get_se(boo_res_icc)[1]), 
+  wild = c(get_se(boo_wil_fr), NA, get_se(boo_wil_icc)[1]), 
   cas = c(get_se(boo_cas_fr), NA, get_se(boo_cas_icc)[1]), 
   cas1 = c(get_se(boo_cas1_fr), NA, get_se(boo_cas1_icc)[1])
 )) |> round(2)
 norm_ci <- t(data.frame(
   par = c(get_ci(boo_par_fr_ci, "normal"), get_ci(boo_par_rsq_ci, "normal"), 
           get_ci(boo_par_icc_ci, "normal")), 
-  wild = c(get_ci(boo_wil_fr_ci, "normal"), "()", 
-           get_ci(boo_wil_icc_ci, "normal")[1]), 
   res = c(get_ci(boo_res_fr_ci, "normal"), get_ci(boo_res_rsq_ci, "normal"), 
           get_ci(boo_res_icc_ci, "normal")), 
+  wild = c(get_ci(boo_wil_fr_ci, "normal"), "()", 
+           get_ci(boo_wil_icc_ci, "normal")[1]), 
   cas = c(get_ci(boo_cas_fr_ci, "normal"), get_ci(boo_cas_rsq_ci, "normal"), 
           get_ci(boo_cas_icc_ci, "normal")), 
   cas1 = c(get_ci(boo_cas1_fr_ci, "normal"), get_ci(boo_cas1_rsq_ci, "normal"), 
@@ -260,10 +269,10 @@ norm_ci <- t(data.frame(
 basic_ci <- t(data.frame(
   par = c(get_ci(boo_par_fr_ci, "basic"), get_ci(boo_par_rsq_ci, "basic"), 
           get_ci(boo_par_icc_ci, "basic")), 
-  wild = c(get_ci(boo_wil_fr_ci, "basic"), "()", 
-           get_ci(boo_wil_icc_ci, "basic")[1]), 
   res = c(get_ci(boo_res_fr_ci, "basic"), get_ci(boo_res_rsq_ci, "basic"), 
           get_ci(boo_res_icc_ci, "basic")), 
+  wild = c(get_ci(boo_wil_fr_ci, "basic"), "()", 
+           get_ci(boo_wil_icc_ci, "basic")[1]), 
   cas = c(get_ci(boo_cas_fr_ci, "basic"), get_ci(boo_cas_rsq_ci, "basic"), 
           get_ci(boo_cas_icc_ci, "basic")), 
   cas1 = c(get_ci(boo_cas1_fr_ci, "basic"), get_ci(boo_cas1_rsq_ci, "basic"), 
@@ -272,10 +281,10 @@ basic_ci <- t(data.frame(
 perc_ci <- t(data.frame(
   par = c(get_ci(boo_par_fr_ci, "percent"), get_ci(boo_par_rsq_ci, "percent"), 
           get_ci(boo_par_icc_ci, "percent")), 
-  wild = c(get_ci(boo_wil_fr_ci, "percent"), "()", 
-           get_ci(boo_wil_icc_ci, "percent")[1]), 
   res = c(get_ci(boo_res_fr_ci, "percent"), get_ci(boo_res_rsq_ci, "percent"), 
           get_ci(boo_res_icc_ci, "percent")),
+  wild = c(get_ci(boo_wil_fr_ci, "percent"), "()", 
+           get_ci(boo_wil_icc_ci, "percent")[1]), 
   cas = c(get_ci(boo_cas_fr_ci, "percent"), get_ci(boo_cas_rsq_ci, "percent"), 
           get_ci(boo_cas_icc_ci, "percent")), 
   cas1 = c(get_ci(boo_cas1_fr_ci, "percent"), get_ci(boo_cas1_rsq_ci, "percent"), 
@@ -283,17 +292,17 @@ perc_ci <- t(data.frame(
 ))
 stud_ci <- t(data.frame(
   par = c(rep("()", each = 10), get_ci(boo_par_icc_ci, "student")), 
-  wild = "()", 
   res = c(rep("()", each = 10), get_ci(boo_res_icc_ci, "student")), 
+  wild = "()", 
   cas = c(rep("()", each = 10), get_ci(boo_cas_icc_ci, "student")), 
   cas1 = c(rep("()", each = 10), get_ci(boo_cas1_icc_ci, "student"))
 ))
 bca_ci <- t(data.frame(
   par = c(get_ci(boo_par_fr_ci, "bca"), get_ci(boo_par_rsq_ci, "bca"), 
           get_ci(boo_par_icc_ci, "bca")), 
-  wild = "()", 
   res = c(get_ci(boo_res_fr_ci, "bca"), get_ci(boo_res_rsq_ci, "bca"), 
           get_ci(boo_res_icc_ci, "bca")), 
+  wild = "()", 
   cas = c(get_ci(boo_cas_fr_ci, "bca"), get_ci(boo_cas_rsq_ci, "bca"), 
           get_ci(boo_cas_icc_ci, "bca")), 
   cas1 = c(get_ci(boo_cas1_fr_ci, "bca"), get_ci(boo_cas1_rsq_ci, "bca"), 
@@ -307,7 +316,7 @@ colnames(boo_tab) <- c(names(fixef(mod_f)), "rsq", "rsq_trans", "icc")
 rownames(boo_tab) <- NULL
 compare_boo <- data.frame(
   stat = c("Original Est.", 
-           rep(c("Bias-Corrected Est.", "Bootstrap SE", "Normal", 
+           rep(c("Bias-Corrected Est.", "SE", "Normal", 
                  "Basic", "Percentile", "Studentized", "BCa"), each = 5)), 
   boo_type = c(" ", rep(c("Parametric", "Wild", "Residual", "Cases (level-2)", 
                           "Cases (both levels)"), 7)), 
