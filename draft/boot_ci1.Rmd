@@ -12,10 +12,10 @@ If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmet
 <!-- ML: the description can be clearer, I think. Should we mention that the interval adjusts for bias? YZ: does it look better now?-->
 The basic CI, also called Hall's percentile CI, uses quantiles of the bootstrapped distribution instead of the normal distribution to obtain more accurate results when $\hat \theta$ does not follow a normal distribution [@hall1992; @vanderleeden2008; @davison1997]. For bootstrap distribution of bias, $\hat \theta - \theta^ *$, $\alpha/2$ and $1-\alpha/2$ quantiles can be computed by $\hat q_{\frac{1}{2}\alpha} = \hat \theta - \hat \theta^*_{\frac{1}{2}\alpha}$ and $\hat q_{1-\frac{1}{2}\alpha} = \hat \theta - \hat \theta^*_{1-\frac{1}{2}\alpha}$. Replacing the quantiles from the bootstrap distribution of bias, the basic CI is $$[2\hat{\theta} - \hat \theta^*_{1-\frac{1}{2}\alpha}, 2\hat{\theta} - \hat \theta^*_{\frac{1}{2}\alpha}].$$<!-- ML: Use comma instead of semicolon YZ: Sure.-->
 
-## Studentized/Bootstrap-t CI
+## Studentized/Bootstrap-$t$ CI
 <!-- ML: I think it's important to make clear what se_B^* is, and that it is specific to a particular bootstrap sample -->
 
-Similar to the basic CI, bootstrap-t CI replaces the quantiles of the normal distribution by quantiles of the bootstrap distribution. The difference between bootstrap-t CI and the basic CI is that bootstrap-t uses the boostrap distribution of $t^* = (\hat \theta - \theta ^*)/se^*$ [@davison1997; @vanderleeden2008]. The bootstrap-t confidence interval can be obtained by replacing $z_{1- \frac{1}{2}\alpha}$ by $t_{1-\frac{1}{2}\alpha},$
+Similar to the basic CI, bootstrap-$t$ CI replaces the quantiles of the normal distribution by quantiles of the bootstrap distribution. The difference between bootstrap-$t$ CI and the basic CI is that bootstrap-$t$ uses the bootstrap distribution of $t^* = (\hat \theta - \theta ^*)/se^*$ [@davison1997; @vanderleeden2008]. The bootstrap-$t$ confidence interval can be obtained by replacing $z_{1- \frac{1}{2}\alpha}$ by $t_{1-\frac{1}{2}\alpha},$
 $$[\hat \theta - t_{1-\frac{1}{2}\alpha}\hat{se}^*, \hat \theta + t_{1-\frac{1}{2}\alpha}\hat{se}^*]$$
 
 ## Percentile CI
