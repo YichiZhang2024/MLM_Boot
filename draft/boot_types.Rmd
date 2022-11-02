@@ -1,4 +1,4 @@
-This section describes the procedure of parametric bootstrap, wild bootstrap, residual bootstrap, and cases bootstrap in detail. A two-level random-effect model is used to illustrate these different types of bootstrapping algorithms. 
+This section describes the procedure of parametric bootstrap, residual bootstrap, wild bootstrap and cases bootstrap in detail. A two-level random-effect model is used to illustrate these different types of bootstrapping algorithms. 
 <!-- ML: I didn't describe wild bootstrap in my section. Would you say the wild bootstrap is under residuals bootstrap? YZ: I think it's better to leave wild bootstrap as a separate section?-->
 
 ## Parametric Bootstrap 
