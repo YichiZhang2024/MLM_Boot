@@ -24,7 +24,7 @@ The percentile CI is formed by using quantiles directly from the bootstrapped di
 
 ## Bias-Corrected and Bias-Corrected and Accelerated CI
 
-To correct the bias contained in the percentile CI, @efron1993 proposed the bias-corrected and accelerated (BCa) CI. Different from the percentile CI that uses  $\alpha/2$ and $1-\alpha/2$ quantiles, $\alpha_L$ and $1-\alpha_U$ are selected to construct the BCa CI. @efron1993 defined $\alpha_L$ and $1-\alpha_U$ as
+To correct the bias contained in the percentile CI, @efron1993 proposed the bias-corrected and accelerated (BCa) CI. Different from the percentile CI that uses  $\frac{1}{2}\alpha$ and $1-\frac{1}{2}\alpha$ quantiles, $\alpha_L$ and $1-\alpha_U$ are selected to construct the BCa CI. @efron1993 defined $\alpha_L$ and $1-\alpha_U$ as
 $$
   \begin{aligned}
 \alpha_L = \Phi\left(w + \frac{w + z_{\alpha/2}}{1- \alpha(w+z_{\alpha/2})}\right) \\
