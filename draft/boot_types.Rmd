@@ -15,7 +15,7 @@ The parametric bootstrap has the strongest assumption among all methods, as it a
 
 ## Residual Bootstrap 
 
-Unlike the parametric bootstrap, residual bootstrap does not assume that the residuals follow certain distributions. However, the homoscedasticity of residuals assumption still needs to hold [@vanderleeden2008]. The procedure for residual bootstrap is similar to the parametric bootstrap, except the residuals are not drawn from assumed distributions (e.g., normal) but from the reflated empirical residuals of fitted models with replacement. The empirical residuals, extracted from a fitted model, have smaller variances than the population variances [@goldstein2011]. Thus, these residuals are shrinkage estimates and will lead to biased results if used directly to form new bootstrapped samples. To overcome this, the residual bootstrap first reflates these shrunken residuals so that their model-implied variances match the population variance [e.g., @davison1997]. For level-2 residuals $\bv{\hat U}_j$, the model-implied covariance matrix of the estimated residuals at level-2 is denoted as $\bv{T}_{\hat U}$. We transform $\bv{\hat U}_j$ to $\bv{L} \bv{L}^{-1}_{\hat U} \bv{\hat U}$, where $\bv{L}_{\hat U}$ is the lower triangular matrix for the Cholesky decomposition of $\bv{T}_{\hat U}$ such that $\bv{L}_{\hat U} \bv{L}^\top_{\hat U} = \bv{T}_{\hat U}$ and $\bv{L}$ is the Cholesky decomposition of $\bv{T}$. The level-1 residuals can be reflated similarly [@lai2021]. The procedure for residual bootstrap is as follows:
+Unlike the parametric bootstrap, residual bootstrap does not assume that the residuals follow certain distributions. However, the homoscedasticity of residuals assumption still needs to hold [@vanderleeden2008]. The procedure for residual bootstrap is similar to the parametric bootstrap, except the residuals are not drawn from assumed distributions (e.g., normal). The empirical residuals, extracted from a fitted model, have smaller variances than the population variances [@goldstein2011]. Thus, these residuals are shrinkage estimates and will lead to biased results if used directly to form new bootstrapped samples. To overcome this, the residual bootstrap first reflates these shrunken residuals so that their model-implied variances match the population variance [@davison1997; @carpenter2003], then draws residuals from these restored shrunken estimates with replacement [@carpenter2003]. For level-2 residuals $\bv{\hat U}_j$, the model-implied covariance matrix of the estimated residuals at level-2 is denoted as $\bv{T}_{\hat U}$. We transform $\bv{\hat U}_j$ to $\bv{L} \bv{L}^{-1}_{\hat U} \bv{\hat U}$, where $\bv{L}_{\hat U}$ is the lower triangular matrix for the Cholesky decomposition of $\bv{T}_{\hat U}$ such that $\bv{L}_{\hat U} \bv{L}^\top_{\hat U} = \bv{T}_{\hat U}$ and $\bv{L}$ is the Cholesky decomposition of $\bv{T}$. The level-1 residuals can be reflated similarly [@lai2021]. The procedure for residual bootstrap is as follows:
 <!-- Assume the corresponding model estimated covariance matrix of the random coefficients at level-2 is $R$, then the reflated level-2 residuals can be computed by a transformation $\hat U^* = \hat UA$, such that $\frac{\hat U^{*T}\hat U^*}{J} = R$ [@goldstein2011].  -->
 <!-- ML: What you described above is from Carpenter et al., which is the residual_cgr procedure. The "residual" procedure in bootmlm calculates the model-implied (not sample) covariance matrix of $\hat u$ (of length $J \times r$), denoted as $T_\hat{u}$, and then transform $\hat U$ to $L L^{-1}_\hat{u} \hat u$, where $L_\hat{u}$ is the lower triangular matrix for the Cholesky decomposition of $T_\hat{u}$ such that $L_\hat{u} L^\top_\hat{u} = T_\hat{u}$ and $L$ is the Cholesky decomposition of $T$. -->
 
@@ -39,7 +39,7 @@ The wild bootstrap is a resampling algorithm developed for models with heterosce
 \begin{equation}
 \text{HC}_3: \bv{\tilde v}_j = \text{diag}(\bv{I}_{n_j} - \bv{H}_j) \circ \bv{\hat v}_j,
 \end{equation}
-where $\circ$ is the entry-wise product [@modugno2015]. The two commonly used auxiliary distributions are $F_1$, proposed by @mammen1993 and $F_2$, proposed by @liu1988, where 
+where $\circ$ is the entry-wise product [@modugno2015]. The two commonly used auxiliary distributions are $F_1$, proposed by @mammen1993, and $F_2$ (also known as the Rademacher distribution), proposed by @liu1988, where 
 \begin{equation}
   F_1: m =
   \begin{cases}
@@ -52,7 +52,7 @@ and
   F_2: m =
   \begin{cases}
     1 \ \ \text{with probability} & p = \frac{1}{2}\\
-    -1 \ \ \text{with probability} & p = \frac{1}{2}
+    -1 \ \ \text{with probability} & p = \frac{1}{2}.
   \end{cases}
 \end{equation}
 

@@ -127,7 +127,7 @@ round(out, 4)
 
 ## Parametric Bootstrap
 
-At the time of writing, the `bootstrap_mer()` function in *bootmlm* supports three main types of bootstrapping---parametric, residual, and cases. To perform parametric bootstrap, we denote `type = "parametric"` in the function and specify the fitted model object from *lmer* (i.e., `mod_f` and `mod_0`) along with the defined function for obtaining the parameter estimates (i.e., `fixef_rsq()` and `icc()`). The `nsim` option refers to the number of bootstrap samples ($B$), which is generally recommended to be large for stable estimates. In this illustration, we use $B = 1,999$. 
+At the time of writing, the `bootstrap_mer()` function in *bootmlm* supports three main types of bootstrapping---parametric, residual, and cases. To perform parametric bootstrap, we denote `type = "parametric"` in the function and specify the fitted model object from *lmer* (i.e., `mod_f` and `mod_0`) along with the defined function for obtaining the parameter estimates (i.e., `fixef_rsq()` and `icc()`). The `nsim` option refers to the number of bootstrap samples ($B$), which is generally recommended to be large for stable estimates. In this illustration, we use $B = 1,999$ because existing literature suggests $.95(B + 1)$ should be an integer when computing the $95\%$ interval for an exact test [@davidson2000; @wilcox2010]. 
 
 \singlespacing
 
