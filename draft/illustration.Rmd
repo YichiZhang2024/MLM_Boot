@@ -277,12 +277,15 @@ compare_boo <- readRDS("illustration_boo_res/compare_boo.rds")
 
 ```{r echo=FALSE}
 tab1_cap <- "
-Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for School-Level Effects
+Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for School-Level Fixed Effects
 "
 tab2_cap <- "
-Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for Student-Level Effects
+Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for Student-Level Fixed Effects
 "
 tab3_cap <- "
+Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for Random Effects
+"
+tab4_cap <- "
 Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for $R^2$ and ICC
 "
 ```
@@ -326,15 +329,34 @@ compare_boo %>%
 
 ```{r comp3, echo=FALSE}
 compare_boo %>%
+  select(stat:boo_type, tau00sq:sigmasq) %>%
+  filter(!(stat %in% c("SE", "Studentized")), 
+         !(stat == "BCA" & boo_type %in% c("Parametric", "Wild"))) %>%
+  knitr::kable(
+    booktabs = TRUE, 
+    escape = FALSE, 
+    col.names = c("", "Bootstrap Type", "$\\tau^2_{00}$", 
+                  "$\\tau^2_{11}$", "$\\tau_{01}$", "$\\sigma^2$"), 
+    caption = tab3_cap
+  ) %>%
+  collapse_rows(1:2) %>%
+  add_header_above(c(" " = 2, "Random Effects" = 4),  
+                   escape = FALSE) %>%
+  kable_styling(font_size = 10.5)
+```
+
+```{r comp4, echo=FALSE}
+compare_boo %>%
   select(stat:boo_type, rsq, rsq_trans, icc) %>%
-  filter(!(stat %in% c("Studentized", "BCA") & boo_type == "Wild"), 
+  filter(!(stat %in% c("C.I.", "SE")), 
+         !(stat %in% c("Studentized", "BCA") & boo_type == "Wild"), 
          !(stat == "BCA" & boo_type %in% c("Parametric", "Wild"))) %>%
   knitr::kable(
     booktabs = TRUE, 
     escape = FALSE, 
     col.names = c("", "Bootstrap Type", "$R^2$", "$R^2$ (transformed)", 
                   "ICC"), 
-    caption = tab3_cap
+    caption = tab4_cap
   ) %>%
   collapse_rows(1:2) %>%
   kable_styling(font_size = 10.5)
