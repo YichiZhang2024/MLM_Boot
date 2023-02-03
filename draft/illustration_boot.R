@@ -241,6 +241,12 @@ boo_cas1_rsq_ci <- boot.ci(boo_cas1_fr, L = inf_val_fr[[9]], h = qlogis,
                            hinv = plogis, 
                            index = 9, type = c("norm", "basic", "perc", "bca"))
 
+# Baseline CIs
+base_ci <- confint(mod_f)
+
+# Baseline standard errors
+sum_f <- summary(mod_f)
+base_se <- sum_f$coefficients[, "Std. Error"]
 
 # Make tables ------------------------------------------------------------------
 
@@ -291,7 +297,13 @@ get_ci <- function(boo_ci, type) {
   }
 }
 
+base_ci_str <- apply(t(base_ci |> round(2)), 2, function(x) {
+  paste0("(", paste(x, collapse = ", "), ")")
+})
+
 orig_est <- c(boo_par_fr$t0, NA, boo_par_icc$t0[1], boo_par_ran$t0) |> round(2)
+orig_ci <- c(base_ci_str[5:12], NA, NA, NA, base_ci_str[1:4])
+orig_se <- c(base_se, rep(NA, 7)) |> round(2)
 boo_est <- t(data.frame(
   par = c(get_est(boo_par_fr), NA, get_est(boo_par_icc)[1], 
           get_est(boo_par_ran)), 
@@ -387,16 +399,18 @@ bca_ci <- t(data.frame(
 ))
 
 boo_tab <- rbind(
-  orig_est, boo_est, boo_se, norm_ci, basic_ci, perc_ci, stud_ci, bca_ci
+  orig_est, orig_ci, orig_se, boo_est, boo_se, 
+  norm_ci, basic_ci, perc_ci, stud_ci, bca_ci
 )
 colnames(boo_tab) <- c(names(fixef(mod_f)), "rsq", "rsq_trans", "icc", 
                        "tau00sq", "tau11sq", "tau01", "sigmasq")
 rownames(boo_tab) <- NULL
 compare_boo <- data.frame(
-  stat = c("Original Est.", 
+  stat = c("Est.", "C.I.", "SE",  
            rep(c("Bias-Corrected Est.", "SE", "Normal", 
                  "Basic", "Percentile", "Studentized", "BCa"), each = 5)), 
-  boo_type = c(" ", rep(c("Parametric", "Wild", "Residual", "Cases (level-2)", 
+  boo_type = c(rep(" ", 3), 
+               rep(c("Parametric", "Wild", "Residual", "Cases (level-2)", 
                           "Cases (both levels)"), 7)), 
   boo_tab
 ) %>%

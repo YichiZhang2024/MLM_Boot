@@ -330,7 +330,7 @@ compare_boo %>%
 ```{r comp3, echo=FALSE}
 compare_boo %>%
   select(stat:boo_type, tau00sq:sigmasq) %>%
-  filter(!stat == "Studentized", 
+  filter(!(stat %in% c("SE", "Studentized")), 
          !(stat == "BCA" & boo_type %in% c("Parametric", "Wild"))) %>%
   knitr::kable(
     booktabs = TRUE, 
@@ -348,7 +348,8 @@ compare_boo %>%
 ```{r comp4, echo=FALSE}
 compare_boo %>%
   select(stat:boo_type, rsq, rsq_trans, icc) %>%
-  filter(!(stat %in% c("Studentized", "BCA") & boo_type == "Wild"), 
+  filter(!(stat %in% c("C.I.", "SE")), 
+         !(stat %in% c("Studentized", "BCA") & boo_type == "Wild"), 
          !(stat == "BCA" & boo_type %in% c("Parametric", "Wild"))) %>%
   knitr::kable(
     booktabs = TRUE, 
