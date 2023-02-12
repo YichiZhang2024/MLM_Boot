@@ -4,7 +4,7 @@ Several statistical software supports multilevel bootstrapping, including R, SPS
 
 The *lme4* [@bates2015], *bootmlm* [@lai2021], and *lmeresampler* [@loy2022] are packages in R implement the bootstrap methods for *lme4* multilevel model outputs. The *lme4* package provides parametric and residual bootstrap, referred to as semiparametric bootstrap. The residual bootstrap procedure in this package is currently at an experimental stage and does not support resampling from reflated empirical residuals. The *bootmlm* package, as demonstrated in Section IV, allows parametric, residual, and cases bootstrap at level-2 or both levels. For the bootstrap samples from *lme4* and *bootmlm*, one can use the *boot* package to obtain normal, basic, percentile, studentized, and BCa CIs. The *lmeresampler* package additionally implements the wild bootstrap, whereas its output can currently be summarized using the *stats* R package, which supports normal, basic, and percentile CIs. 
 
-SPSS, SAS, and Stata are three commercial and proprietary statistical software that offers multilevel bootstrap functionalities. SPSS has the options of parametric and cases bootstrap at level-2 and provides percentile and BCa CIs [@ibmcorp2021]. Stata offers nonparametric bootstrap, which is a cases bootstrap procedure at level-2 [@statacorp2021], and the *boottest* Stata package [@roodman2019] implements the wild bootstrap. Normal, percentile, and BCa CIs can be constructed for the bootstrap samples from Stata. In SAS, one can perform parametric, residual (known as semiparametric), and cases (known as nonparametric) bootstraps and obtain the percentile CIs [@appiah2018]. 
+SPSS and SAS are two commercial and proprietary statistical software that offers multilevel bootstrap functionalities. SPSS has the options of parametric and cases bootstrap at level-2 and provides percentile and BCa CIs [@ibmcorp2021]. In SAS, one can perform parametric, residual (known as semiparametric), and cases (known as nonparametric) bootstraps and obtain the percentile CIs [@appiah2018]. 
 
 ```{r echo=FALSE}
 soft_tab_cab <- "
@@ -15,16 +15,14 @@ Summary of Software for Multilevel Bootstrapping
 ```{r soft-tab, echo=FALSE}
 data.frame(
   software = c("R (lme4)", "R (bootmlm)", "R (lmeresampler)", 
-               "SPSS", "Stata", "SAS"), 
+               "SPSS", "SAS"), 
   types = c("Parametric, residual", "Parametric, residual, cases", 
             "Parametric, residual, cases, wild", 
-            "Parametric, cases", "Cases, wild (via the boottest Stata package)", 
-            "Parametric, residual, cases"), 
+            "Parametric, cases", "Parametric, residual, cases"), 
   ci = c("Normal, basic, percentile, studentized, BCa (via the boot R package)", 
          "Normal, basic, percentile, studentized, BCa (via the boot R package)", 
          "Normal, basic, percentile (via the stats R package)", 
-         "Percentile, BCa", "Normal, percentile, BCa", 
-         "Percentile")
+         "Percentile, BCa", "Percentile")
 ) %>%
   knitr::kable(
     booktabs = TRUE,

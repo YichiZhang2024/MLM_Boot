@@ -10,7 +10,7 @@ where $\bar X = \frac{1}{n}\sum_i^n X_i$ is the sample mean, $\mu_0$ is the null
 \begin{equation}
 [\bar X-t_{1-\frac{1}{2}\alpha} \hat{se}_N, \bar X - t_{\frac{1}{2}\alpha} \hat{se}_N],  
 \end{equation}
-where $t_{1-\frac{1}{2}\alpha}$ and $t_{\frac{1}{2}\alpha}$ are the $1-\frac{1}{2}\alpha$ and $\frac{1}{2}\alpha$ quantiles of $T$. 
+where $t_{1-\frac{1}{2}\alpha}$ and $t_{\frac{1}{2}\alpha}$ are the $1-\frac{1}{2}\alpha$ and $\frac{1}{2}\alpha$ quantiles of the central *t* distribution.  
 
 
 <!-- ML: I think the bootstrap-t is a bit more complicated than other procedures. And I don't think it helps to start with constructing CIs before talking about the sampling algorithms. How about talking about the sampling with replacement part first? And then just talk about the percentile CI instead of the bootstrap-t CI? -->

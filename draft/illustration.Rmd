@@ -82,7 +82,7 @@ mod_f <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses +
 
 \doublespacing
 
-We first define two functions: `eff_rsq()` takes the full model to compute the fixed effects and $R^2$, and `icc()` takes the null model to compute ICC. `eff_rsq()` yields estimates for 13 parameters, including eight fixed effects ($\gamma_{00}, \gamma_{01}, \gamma_{02}, \gamma_{03}, \gamma_{10}, \gamma_{20}, \gamma_{30}, \gamma_{40}$), four random effects ($\tau^2_{00}, \tau^2_{11}, \tau_{01}, \sigma^2$), and $R^2$. In `icc()`, we compute the ICC and additionally its asymptotic sampling variance, which will be used to construct the studentized/bootstrap-*t* CI. 
+We first define two functions: `eff_rsq()` takes the full model to compute the fixed effects and $R^2$, and `icc()` takes the null model to compute ICC. `eff_rsq()` yields estimates for 13 parameters, including eight fixed effects ($\gamma_{00}, \gamma_{01}, \gamma_{02}, \gamma_{03}, \gamma_{10}, \gamma_{20}, \gamma_{30}, \gamma_{40}$), four random effects ($\tau^2_{00}, \tau^2_{11}, \tau_{01}, \sigma^2$), and $R^2$. In `icc()`, we compute the ICC and additionally its asymptotic sampling variance using the `vcov_vc()` function from *bootmlm*, which will be needed to construct the studentized/bootstrap-*t* CI. 
 
 \singlespacing
 
@@ -93,6 +93,7 @@ eff_rsq <- function(mod) {
   # Random effects
   ran_eff <- as.data.frame(VarCorr(mod))$vcov
   # R^2
+  # Alternatively, we can get the same R^2 with MuMIn::r.squaredGLMM()
   rsq <- performance::r2_nakagawa(mod)[[1]]
   c(fix_eff = fix_eff, ran_eff = ran_eff, rsq = rsq)
 }
@@ -107,7 +108,7 @@ icc <- function(mod) {
   dG_tau00sq <- sigmasq / (tau00sq + sigmasq)^2
   dG_sigmasq <- - tau00sq / (tau00sq + sigmasq)^2
   grad <- c(dG_tau00sq, dG_sigmasq)
-  vcov_ranef <- vcov_vc(mod_0, sd_cor = FALSE)
+  vcov_ranef <- vcov_vc(mod, sd_cor = FALSE)
   icc_var <- t(grad) %*% vcov_ranef %*% grad
   c(icc_est, icc_var)
 }
@@ -263,7 +264,7 @@ boo_cas_icc_ci <- boot::boot.ci(boo_cas_icc,
 # Resampling both clusters and individuals
 boo_cas1_eff_ci <- lapply(1:13, function(i) {
   boot::boot.ci(boo_cas1_eff, type = c("norm", "basic", "perc", "bca"), 
-                index = i, L = inf_val_eff)
+                index = i, L = inf_val_eff[[i]])
 })
 boo_cas1_icc_ci <- boot::boot.ci(boo_cas1_icc, 
                                  type = c("norm", "basic", "perc", "stud", "bca"), 
@@ -280,16 +281,16 @@ compare_boo <- readRDS("illustration_boo_res/compare_boo.rds")
 
 ```{r echo=FALSE}
 tab1_cap <- "
-Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for School-Level Fixed Effects
+Bias-Corrected Estimates, Standard Errors, and Confidence Intervals for School-Level Fixed Effects
 "
 tab2_cap <- "
-Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for Student-Level Fixed Effects
+Bias-Corrected Estimates, Standard Errors, and Confidence Intervals for Student-Level Fixed Effects
 "
 tab3_cap <- "
-Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for Random Effects
+Bias-Corrected Estimates, Standard Errors, and Confidence Intervals for Random Effects
 "
 tab4_cap <- "
-Bias-Corrected Estimatoes, Standard Errors, and Confidence Intervals for $R^2$ and ICC
+Bias-Corrected Estimates, Standard Errors, and Confidence Intervals for $R^2$ and ICC
 "
 ```
 
@@ -302,7 +303,7 @@ compare_boo %>%
   knitr::kable(
     booktabs = TRUE, 
     escape = FALSE, 
-    col.names = c("", "Bootstrap Type", "$\\gamma_{00}$", "$\\gamma_{01}$", 
+    col.names = c("", "Type", "$\\gamma_{00}$", "$\\gamma_{01}$", 
                   "$\\gamma_{02}$", "$\\gamma_{03}$"), 
     caption = tab1_cap
   ) %>%
@@ -320,7 +321,7 @@ compare_boo %>%
   knitr::kable(
     booktabs = TRUE, 
     escape = FALSE, 
-    col.names = c("", "Bootstrap Type", "$\\gamma_{10}$", 
+    col.names = c("", "Type", "$\\gamma_{10}$", 
                   "$\\gamma_{20}$", "$\\gamma_{30}$", "$\\gamma_{40}$"), 
     caption = tab2_cap
   ) %>%
@@ -338,7 +339,7 @@ compare_boo %>%
   knitr::kable(
     booktabs = TRUE, 
     escape = FALSE, 
-    col.names = c("", "Bootstrap Type", "$\\tau^2_{00}$", 
+    col.names = c("", "Type", "$\\tau^2_{00}$", 
                   "$\\tau^2_{11}$", "$\\tau_{01}$", "$\\sigma^2$"), 
     caption = tab3_cap
   ) %>%
@@ -351,13 +352,13 @@ compare_boo %>%
 ```{r comp4, echo=FALSE}
 compare_boo %>%
   select(stat:boo_type, rsq, rsq_trans, icc) %>%
-  filter(!(stat %in% c("C.I.", "SE")), 
+  filter(!(stat %in% c("Asymptotic SE", "Likelihood-Based C.I.")), 
          !(stat %in% c("Studentized", "BCA") & boo_type == "Wild"), 
          !(stat == "BCA" & boo_type %in% c("Parametric", "Wild"))) %>%
   knitr::kable(
     booktabs = TRUE, 
     escape = FALSE, 
-    col.names = c("", "Bootstrap Type", "$R^2$", "$R^2$ (transformed)", 
+    col.names = c("", "Type", "$R^2$", "$R^2$ (transformed)", 
                   "ICC"), 
     caption = tab4_cap
   ) %>%
@@ -365,42 +366,42 @@ compare_boo %>%
   kable_styling(font_size = 10.5)
 ```
 
-Tables\ \@ref(tab:comp1)-\@ref(tab:comp4) summarize the standard errors and CIs for all parameters with the illustrated bootstrap approaches. The tables also include the uncorrected estimates, standard errors from the `lme4` model output, as well as the confidence intervals based on profile likelihood using `confint(mod_f)`. Note that with non-bootstrap methods, it is generally difficult to obtain the confidence intervals for ICC and $R^2$ and the standard errors for random effects, ICC, and $R^2$. Recall that parametric bootstrap assumes normality; residual bootstrap relaxes the normality assumption but still relies on the homoscedasticity assumption; wild bootstrap relaxes the homoscedasticity assumption but relies on the normality assumption; cases bootstrap relaxes both assumptions but requires more time to perform with lower computational efficiency. Since the intelligence variable violates both the normality and homoscedasticity assumptions, we expect to see differences in the standard errors and CIs between methods for the fixed effects related to intelligence. 
+Tables\ \@ref(tab:comp1)-\@ref(tab:comp4) summarize the standard errors and CIs for all parameters with the illustrated bootstrap approaches. The tables also include the uncorrected estimates and asymptotic standard errors from the *lme4* model output, as well as the confidence intervals based on profile likelihood using `confint(profile(mod_f, prof.scale = "varcov"))`. Note that with non-bootstrap methods, it is generally difficult to obtain the standard errors and confidence intervals for ICC and $R^2$. Moreover, as there are no direct ways to obtain standard errors of the variance components for the random effects from *lme4* at the time of writing, we relied on the `vcov_vc()` function from *bootmlm* to compute these standard errors. Recall that parametric bootstrap assumes normality; residual bootstrap relaxes the normality assumption but still relies on the homoscedasticity assumption; wild bootstrap relaxes the homoscedasticity assumption but relies on the normality assumption; cases bootstrap relaxes both assumptions but requires more time to perform with lower computational efficiency. Since the intelligence variable violates both the normality and homoscedasticity assumptions, we expect to see differences in the standard errors and CIs between methods for the fixed effects related to intelligence. 
 
-For the school-level fixed effects, the CIs are similar across methods, except for the school-mean intelligence ($\gamma_{01}$). The standard errors are also similar across methods, except for the grand intercept ($\gamma_{00}$) and the fixed effect of school-mean intelligence ($\gamma_{01}$). The cases bootstrap with resampling at both levels shows the most drastic differences with larger standard errors and wider CIs. For the student-level fixed effects, the standard errors and CIs are similar across methods, except for the fixed effect of student-level intelligence ($\gamma_{10}$) and the interaction between the student-level intelligence and socio-economic status ($\gamma_{30}$). Similarly, the cases bootstrap with resampling at both levels gives larger standard errors and wider CIs.
+For the school-level fixed effects, the standard errors and CIs are similar across methods, except for the school-mean intelligence ($\gamma_{01}$). The bootstrap CIs are generally narrower than the likelihood-based CI for $\gamma_{01}$. For the student-level fixed effects, the standard errors and CIs are similar across methods, except for the fixed effect of student-level intelligence ($\gamma_{10}$) and the interaction between the student-level intelligence and socio-economic status ($\gamma_{40}$). Similarly, the cases bootstrap with resampling at both levels gives larger standard errors and wider CIs. For school-mean intelligence, student-level intelligence, and the interaction between student-level intelligence and SES ($\gamma_{01}, \gamma_{10}, \gamma_{40}$), the cases bootstrap with resampling at both levels shows the most drastic differences with larger standard errors and wider CIs. 
 
-For the random effects, the confidence intervals based on profile likelihood are drastically different from the confidence intervals from the bootstrap methods. For the $R^2$ and ICC, all methods yield similar standard errors and CIs. For the ICC specifically, cases bootstrap with resampling at both levels tend to give internvals of the shortest length with the normal and basic CIs. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense WT: sounds good, thanks-->
+For the between-variances and covariance between the within- and between-random effects ($\tau^2_{11}, \tau_{01}$), the standard errors and CIs are similar across methods; for the within-variances and residual variances ($\tau^2_{00}, \sigma^2$), however, the standard errors and bootstrap CIs slightly differ across methods. The residual bootstraps yield the smallest SE and narrowest CIs for $\tau^2_{00}$ but a larger SE and wider CIs for $\sigma^2$. The wild bootstraps have a larger SE and wider CIs than all methods, except cases bootstrap with resampling at both levels, for $\tau^2_{00}$ and $\sigma^2$. The cases bootstraps produce unusually small bias-corrected estimates, large SEs, and wide CIs, comparing to other methods. While the cases bootstrap has also been found to perform poorly for variance component estimation [@vanderleeden1997; @vanderleeden2008], we do not recommend cases bootstrap at both levels for the random effect variance components. More studies are needed to evaluate the performance of the cases bootstrap. For the $R^2$ and ICC, all methods yield similar standard errors and CIs, but for ICC in particular, the cases bootstrap at both levels tend to give narrowest intervals with the normal and basic CIs. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense WT: sounds good, thanks-->
 
 
 ## Bootstrap CI With Transformation
 
 For parameters with highly skewed sampling distributions or with bounds (e.g., $R^2$ and ICC), obtaining the CI from the transformed parameters may give better coverage at the 95% intervals [@ukoumunne2003]. For example, we can transform $R^2$ to an unbounded scale with logit transformation, obtain the CIs on the transformed scale, and back-transform the CIs to the bounded scale between 0 and 1. One can also use the same procedure to transform ICC with the stabilizing transformation suggested by @ukoumunne2003. 
 
-Here we demonstrate how to obtain CIs for $R^2$ with the logit transformation ($f[x]$ = $x / [1 - x]$). In `boot::boot.ci()`, we additionally provide three inputs: (a) the logit function, `qlogis`, (b) the first derivative of the logit function function `function(x) 1 / (x - x^2)`, and (c) the inverse of the logit function, `plogis`. As $R^2$ is the ninth parameter in our defined function `fixef_rsq()` for bootstrapping, we specify `index = 9` to compute the CI for $R^2$. Below is the syntax for applying logit transformation for the bootstrap samples of $R^2$ with parametric, residual, and cases bootstrap. 
+Here we demonstrate how to obtain CIs for $R^2$ with the logit transformation ($f[x]$ = $x / [1 - x]$). In `boot::boot.ci()`, we additionally provide three inputs: (a) the logit function, `qlogis`, (b) the first derivative of the logit function function `function(x) 1 / (x - x^2)`, and (c) the inverse of the logit function, `plogis`. As $R^2$ is the 13th parameter in our defined function `eff_rsq()` for bootstrapping, we specify `index = 13` to compute the CI for $R^2$. Below is the syntax for applying logit transformation for the bootstrap samples of $R^2$ with parametric, residual, and cases bootstrap. 
 
 \singlespacing
 
 ```{r eval=FALSE}
 # Parametric
-boo_par_rsq_ci <- boot.ci(boo_par_fr, h = qlogis, 
+boo_par_rsq_ci <- boot.ci(boo_par_eff, h = qlogis, 
                           hdot = function(x) 1 / (x - x^2), 
                           hinv = plogis, 
-                          index = 9, type = c("norm", "basic", "perc"))
+                          index = 13, type = c("norm", "basic", "perc"))
 # Residual
-boo_res_rsq_ci <- boot.ci(boo_res_fr, L = inf_val_fr[[9]], h = qlogis, 
+boo_res_rsq_ci <- boot.ci(boo_res_eff, L = inf_val_fr[[13]], h = qlogis, 
                           hdot = function(x) 1 / (x - x^2), 
                           hinv = plogis, 
-                          index = 9, type = c("norm", "basic", "perc", "bca"))
+                          index = 13, type = c("norm", "basic", "perc", "bca"))
 # Cases (resampling only clusters)
-boo_cas_rsq_ci <- boot.ci(boo_cas_fr, L = inf_val_fr[[9]], h = qlogis, 
+boo_cas_rsq_ci <- boot.ci(boo_cas_eff, L = inf_val_fr[[13]], h = qlogis, 
                           hdot = function(x) 1 / (x - x^2), 
                           hinv = plogis, 
-                          index = 9, type = c("norm", "basic", "perc", "bca"))
+                          index = 13, type = c("norm", "basic", "perc", "bca"))
 # Cases (resampling clusters and individuals)
-boo_cas1_rsq_ci <- boot.ci(boo_cas1_fr, L = inf_val_fr[[9]], h = qlogis, 
+boo_cas1_rsq_ci <- boot.ci(boo_cas1_eff, L = inf_val_fr[[13]], h = qlogis, 
                            hdot = function(x) 1 / (x - x^2), 
                            hinv = plogis, 
-                           index = 9, type = c("norm", "basic", "perc", "bca"))
+                           index = 13, type = c("norm", "basic", "perc", "bca"))
 ```
 
 \doublespacing
