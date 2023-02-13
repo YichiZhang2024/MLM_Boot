@@ -1,5 +1,5 @@
 
-In this section, we illustrate three bootstrap approaches (i.e., parametric, residual, and cases) with the *bootmlm* R package and the wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain bias-corrected estimates, standard errors, and CIs for the fixed effects, random effects, intraclass correlation (ICC), and $R^2$ [@nakagawa2017]. <!-- ML: Also mention bias-corrected estimates? WT: done. Thanks-->
+In this section, we illustrate three bootstrap approaches (i.e., parametric, residual, and cases) with the *bootmlm* R package and the wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain bias-corrected estimates, standard errors, and CIs for the fixed effects, random effects, intraclass correlation (ICC), and $R^2$ [@nakagawa2013]. <!-- ML: Also mention bias-corrected estimates? WT: done. Thanks-->
 
 The empirical example is an elementary school study by @knuver1993 and @doolaard1999, whose data was shared and used in @snijders2012. This study contains data for 3,758 students (after a list-wise deletion of 258 students), from 211 schools with class sizes ranging between 5 and 36. As shown in Snijders and Bosker (2012; Chapters 8 and 10), the intelligence variable in the data appeared to violate both assumptions of normality and homoscedasticity. 
 
