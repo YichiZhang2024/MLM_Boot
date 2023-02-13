@@ -39,7 +39,7 @@ The wild bootstrap is a resampling algorithm developed for models with heterosce
 \begin{equation}
 \text{HC}_3: \bv{\tilde v}_j = \text{diag}(\bv{I}_{n_j} - \bv{H}_j) \circ \bv{\hat v}_j,
 \end{equation}
-where $\circ$ is the entry-wise product [@modugno2015]. The two commonly used auxiliary distributions are $F_1$, proposed by @mammen1993, and $F_2$ (also known as the Rademacher distribution), proposed by @liu1988, where 
+where $\circ$ is the entry-wise product [@modugno2015].[^hat] The two commonly used auxiliary distributions are $F_1$, proposed by @mammen1993, and $F_2$ (also known as the Rademacher distribution), proposed by @liu1988, where 
 \begin{equation}
   F_1: m =
   \begin{cases}
@@ -55,6 +55,8 @@ and
     -1 \ \ \text{with probability} & p = \frac{1}{2}.
   \end{cases}
 \end{equation}
+
+[^hat]: The current software implementation (i.e., the *lmeresampler* R package) of the wild bootstrap for multilevel models uses the ordinary least square (OLS) estimators. Thus, the hat matrix, $H_j$, does not include the matrix that represents random effects.
 
 The specific procedure for multilevel wild bootstrap is listed below [see @modugno2015, p.8]:
 

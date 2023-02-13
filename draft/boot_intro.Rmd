@@ -8,10 +8,9 @@ T = \frac{\bar X - \mu_0}{\hat{se}_N},
 \end{equation}
 where $\bar X = \frac{1}{n}\sum_i^n X_i$ is the sample mean, $\mu_0$ is the null value of the mean, $\hat{se}_N=s/\sqrt{n}$ is the asymptotic standard error of the mean, and $s$ is the sample standard deviation. <!-- ML: I don't think T is necessarily symmetric when normality holds, unless H_0 is true. Otherwise, it is a noncentral-t, which is not symmetric. If you meant under H_0, then you can just say it follows a t distribution. --> The 95% CI for $\bar X$ can be constructed as
 \begin{equation}
-[\bar X-t_{1-\frac{1}{2}\alpha} \hat{se}_N, \bar X - t_{\frac{1}{2}\alpha} \hat{se}_N],  
+[\bar X-t_{1-\frac{1}{2}\alpha} \hat{se}_N, \bar X + t_{1 - \frac{1}{2}\alpha} \hat{se}_N],  
 \end{equation}
-where $t_{1-\frac{1}{2}\alpha}$ and $t_{\frac{1}{2}\alpha}$ are the $1-\frac{1}{2}\alpha$ and $\frac{1}{2}\alpha$ quantiles of the central *t* distribution.  
-
+where $t_{1-\frac{1}{2}\alpha}$ and $t_{\frac{1}{2}\alpha}$ are the $1-\frac{1}{2}\alpha$ and $\frac{1}{2}\alpha$ quantiles of the central *t* distribution.
 
 <!-- ML: I think the bootstrap-t is a bit more complicated than other procedures. And I don't think it helps to start with constructing CIs before talking about the sampling algorithms. How about talking about the sampling with replacement part first? And then just talk about the percentile CI instead of the bootstrap-t CI? -->
 However, suppose our data has a skewed distribution and violates the normality assumption. To account for nonnormality, we can perform bootstrapping using the following procedure [@wilcox2017; @efron1993]:
