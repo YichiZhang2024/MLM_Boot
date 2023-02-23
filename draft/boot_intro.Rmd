@@ -4,11 +4,11 @@ Bootstrap methods are useful for computing standard errors, confidence intervals
 Consider that we collected data with $n$ observations, $X_1, \dots, X_n$, and aim to test against the null hypothesis, $H_0: \mu_0 = 0$, that the population mean is zero. <!-- ML: so \mu_0 = 0? WT: thanks!--> 
 Recall that the student *t-*statistic is 
 \begin{equation}
-T = \frac{\bar X - \mu_0}{\hat{se}_N}, 
+T = \frac{\hat \mu - \mu_0}{\hat{se}_N}, 
 \end{equation}
-where $\bar X = \frac{1}{n}\sum_i^n X_i$ is the sample mean, $\mu_0$ is the null value of the mean, $\hat{se}_N=s/\sqrt{n}$ is the asymptotic standard error of the mean, and $s$ is the sample standard deviation. <!-- ML: I don't think T is necessarily symmetric when normality holds, unless H_0 is true. Otherwise, it is a noncentral-t, which is not symmetric. If you meant under H_0, then you can just say it follows a t distribution. --> The 95% CI for $\bar X$ can be constructed as
+where $\hat \mu = \frac{1}{n}\sum_i^n X_i$ is the sample mean, $\mu_0$ is the null value of the population mean, $\hat{se}_N=s/\sqrt{n}$ is the asymptotic standard error of the mean, and $s$ is the sample standard deviation. <!-- ML: I don't think T is necessarily symmetric when normality holds, unless H_0 is true. Otherwise, it is a noncentral-t, which is not symmetric. If you meant under H_0, then you can just say it follows a t distribution. --> The 95% CI for $\hat \mu$ can be constructed as
 \begin{equation}
-[\bar X-t_{1-\frac{1}{2}\alpha} \hat{se}_N, \bar X + t_{1 - \frac{1}{2}\alpha} \hat{se}_N],  
+[\hat \mu-t_{1-\frac{1}{2}\alpha} \hat{se}_N, \hat \mu + t_{1 - \frac{1}{2}\alpha} \hat{se}_N],  
 \end{equation}
 where $t_{1-\frac{1}{2}\alpha}$ is the $1-\frac{1}{2}\alpha$ quantile of the central *t* distribution.
 
@@ -16,22 +16,22 @@ where $t_{1-\frac{1}{2}\alpha}$ is the $1-\frac{1}{2}\alpha$ quantile of the cen
 However, suppose our data has a skewed distribution and violates the normality assumption. To account for nonnormality, we can perform bootstrapping using the following procedure [@wilcox2017; @efron1993]:
 
 1. Randomly draw $n$ observations from the observed data, *with replacement*, to create a bootstrap sample, $X^*_1, \dots, X_n^*$. 
-2. For the bootstrap sample, compute the *bootstrap sample mean*, $\bar X^*_b = \frac{1}{n}\sum_i^n X^*_i$. 
-3. Repeat steps 1 and 2 $B$ times to obtain $B$ bootstrap sample means, $\bar X^*_1, \dots, \bar X^*_B$. 
-4. Arrange the bootstrap sample means in ascending order to get $\bar X^*_{(1)} \leq \bar X^*_{(2)} \leq \dots \leq \bar X^*_{(B)}$. 
-Based on the bootstrap samples, we can estimate the sample mean with the average of the bootstrap sample means, $\bar X^*=\frac{1}{B}\sum_b^B \bar X^*_b$, and the standard error of the mean with the standard deviation of the bootstrap sample means,
-$\hat{se}^* = \sqrt{\frac{1}{B}\sum_b^B (\bar X^*_b - \bar X^*)^2}$. The bias of the sample mean, $\bar X$, is estimated by the bias of $\bar X^*$ [@efron1993; @vanderleeden2008], given by
+2. For the bootstrap sample, compute the *bootstrap sample mean*, $\hat \mu^*_b = \frac{1}{n}\sum_i^n X^*_i$. 
+3. Repeat steps 1 and 2 $B$ times to obtain $B$ bootstrap sample means, $\hat \mu^*_1, \dots, \hat \mu^*_B$. 
+4. Arrange the bootstrap sample means in ascending order to get $\hat \mu^*_{(1)} \leq \hat \mu^*_{(2)} \leq \dots \leq \hat \mu^*_{(B)}$. 
+Based on the bootstrap samples, we can estimate the sample mean with the average of the bootstrap sample means, $\hat \mu^*=\frac{1}{B}\sum_b^B \hat \mu^*_b$, and the standard error of the mean with the standard deviation of the bootstrap sample means,
+$\hat{se}^* = \sqrt{\frac{1}{B}\sum_b^B (\hat \mu^*_b - \hat \mu^*)^2}$. The bias of the sample mean, $\hat \mu$, is estimated by the bias of $\hat \mu^*$ [@efron1993; @vanderleeden2008], given by
 \begin{equation}
-\hat{\text{Bias}}(\bar X) = \hat{\text{Bias}}(\bar X^*) = \bar X^* - \bar X,
+\hat{\text{Bias}}(\hat \mu) = \hat{\text{Bias}}(\hat \mu^*) = \hat \mu^* - \hat \mu,
 \end{equation}
-and the bias-corrected estimator of $\bar X$ is
+and the bias-corrected estimator of $\hat \mu$ is
 \begin{equation}
-\bar X_{corrected} = 2 \bar X - \bar X^* = \bar X - \hat{\text{Bias}}(\bar X).
+\hat \mu_{corrected} = 2 \hat \mu - \hat \mu^* = \hat \mu - \hat{\text{Bias}}(\hat \mu).
 \end{equation}
 An approximate 95% CI for the sample mean is
 \begin{equation}
-[\bar X^*_{\frac{1}{2}\alpha}; \bar X^*_{1-\frac{1}{2}\alpha}]
+[\hat \mu^*_{\frac{1}{2}\alpha}; \hat \mu^*_{1-\frac{1}{2}\alpha}]
 \end{equation}
-where $\bar X^*_{\frac{1}{2}\alpha}$ and $\bar X^*_{1-\frac{1}{2}\alpha}$ are the $\frac{1}{2}\alpha$ and $1-\frac{1}{2}\alpha$ quantile of the bootstrap distributions. 
+where $\hat \mu^*_{\frac{1}{2}\alpha}$ and $\hat \mu^*_{1-\frac{1}{2}\alpha}$ are the $\frac{1}{2}\alpha$ and $1-\frac{1}{2}\alpha$ quantile of the bootstrap distributions. 
 <!-- $\bar X^*_{T, \frac{1}{2}\alpha}$ is the bootstrap  -->
 <!-- where $t^*_{1-\alpha/2}$ denote the the $1 - \alpha/2$ quantile of the bootstrap distribution. For example, if $B=1000$ with at the significance level of $\alpha=.05$, $t^*_{\alpha/2} = t^*_{.975}$. -->

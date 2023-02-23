@@ -1,5 +1,5 @@
 
-In this section, we illustrate three bootstrap approaches (i.e., parametric, residual, and cases) with the *bootmlm* R package and the wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain bias-corrected estimates, standard errors, and CIs for the fixed effects, random effects, intraclass correlation (ICC), and $R^2$ [@nakagawa2013]. <!-- ML: Also mention bias-corrected estimates? WT: done. Thanks-->
+In this section, we illustrate four bootstrap approaches (i.e., parametric, residual, wild, and cases) with the *bootmlm* R package and the wild bootstrap with the *lmeresampler* R package on an empirical example. In particular, we will obtain bias-corrected estimates, standard errors, and CIs for the fixed effects, random effects, intraclass correlation (ICC), and $R^2$ [@nakagawa2013]. <!-- ML: Also mention bias-corrected estimates? WT: done. Thanks-->
 
 The empirical example is an elementary school study by @knuver1993 and @doolaard1999, whose data was shared and used in @snijders2012. This study contains data for 3,758 students (after a list-wise deletion of 258 students), from 211 schools with class sizes ranging between 5 and 36. As shown in Snijders and Bosker (2012; Chapters 8 and 10), the intelligence variable in the data appeared to violate both assumptions of normality and homoscedasticity. 
 
@@ -74,7 +74,7 @@ to obtain the ICC: $\rho = \frac{\tau^2_{00|U}}{\tau^2_{00|U} + \sigma^2_{|U}}$.
 ```{r}
 # unconditional model
 mod_0 <- lmer(langPOST ~ (1 | schoolnr), data = sj_dat)
-# final model
+# full model
 mod_f <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses +
                 (IQ_verb | schoolnr), 
               data = sj_dat)
@@ -82,7 +82,7 @@ mod_f <- lmer(langPOST ~ IQ_verb*ses + sex + sch_iqv*sch_ses +
 
 \doublespacing
 
-We first define two functions: `eff_rsq()` takes the full model to compute the fixed effects and $R^2$, and `icc()` takes the null model to compute ICC. `eff_rsq()` yields estimates for 13 parameters, including eight fixed effects ($\gamma_{00}, \gamma_{01}, \gamma_{02}, \gamma_{03}, \gamma_{10}, \gamma_{20}, \gamma_{30}, \gamma_{40}$), four random effects ($\tau^2_{00}, \tau^2_{11}, \tau_{01}, \sigma^2$), and $R^2$. In `icc()`, we compute the ICC and additionally its asymptotic sampling variance using the `vcov_vc()` function from *bootmlm*, which will be needed to construct the studentized/bootstrap-*t* CI. 
+We first define two functions: `eff_rsq()` takes the full model to compute the fixed effects, random effects, and $R^2$, and `icc()` takes the null model to compute ICC. `eff_rsq()` yields estimates for 13 parameters, including eight fixed effects ($\gamma_{00}, \gamma_{01}, \gamma_{02}, \gamma_{03}, \gamma_{10}, \gamma_{20}, \gamma_{30}, \gamma_{40}$), four random effects ($\tau^2_{00}, \tau^2_{11}, \tau_{01}, \sigma^2$), and $R^2$. In `icc()`, we compute the ICC and additionally its asymptotic sampling variance using the `vcov_vc()` function from *bootmlm*, which will be needed to construct the studentized/bootstrap-*t* CI. 
 
 \singlespacing
 
@@ -142,7 +142,9 @@ boo_par_icc <- bootstrap_mer(mod_0, icc, nsim = 1999L, type = "parametric")
 
 \doublespacing
 
-After running bootstrap resampling, we can use the `boot.ci()` function in *boot* to compute the CIs for the bootstrap samples. This function provides five ways to construct CIs: normal, basic, percentile, studentized, and BCa. Computing studentized and BCa CIs require additional inputs, such as the influence values and the bootstrap samples of an estimator's variance. With parametric bootstrap, we demonstrate how to obtain normal, basic, and percentile CIs for the fixed effects and $R^2$. In `boot.ci()`, we specify the types of CIs `type = c("norm", "basic", "perc")` to be computed. The index denotes the position of the estimator of interest in the output from `bootstrap_mer()`. 
+After running bootstrap resampling, we can use the `boot.ci()` function in *boot* to compute the CIs for the bootstrap samples. This function provides five ways to construct CIs: normal, basic, percentile, studentized, and BCa. Computing studentized and BCa CIs require additional inputs, which are the bootstrap samples of an estimator’s variance and the influence values, respectively.
+
+With parametric bootstrap, we demonstrate how to obtain normal, basic, and percentile CIs for the fixed effects and $R^2$. In `boot.ci()`, we specify the types of CIs `type = c("norm", "basic", "perc")` to be computed. The index denotes the position of the estimator of interest in the output from `bootstrap_mer()`. 
 <!-- ML: boot.ci() supports five. Would you clarify that studentized and BCa require additional input? WT: sounds good. --> As `boo_par_eff` consists of the bootstrap samples for 13 parameters, `lapply()` allows us to compute CIs for all of them simultaneously. 
 
 \singlespacing
@@ -164,7 +166,7 @@ boo_par_icc_ci <- boot.ci(boo_par_icc, type = c("norm", "basic", "perc", "stud")
 
 ## Residual Bootstrap
 
-As the residuals in MLM (denoted as $\tilde u$ and $\tilde \epsilon$) are shrinkage estimates, their sampling variabilities are much smaller than the population random effects (e.g., $\tau^2_{00}$ and $\sigma^2$). Residual bootstrap accounts for the small sampling variabilities by rescaling $\tilde u$ and $\tilde \epsilon$. To perform residual bootstrap, we specify `type = "residual"` in `bootmlm::bootstrap_mer()`. 
+As discussed in Section II, because the residuals in MLM are shrinkage estimates, their sampling variabilities are much smaller than the population random effects (e.g., $\tau^2_{00}$ and $\sigma^2$). Residual bootstrap accounts for the small sampling variabilities by rescaling the residuals. To perform residual bootstrap, we specify `type = "residual"` in `bootmlm::bootstrap_mer()`. 
 
 <!-- YZ: I only described a general idea of reflating residuals in section III. I'll add some additional details of these three types of reflations WT: I took away the other two residual bootstrap methods, as suggested by Mark -->
 
@@ -178,7 +180,7 @@ boo_res_icc <- bootstrap_mer(mod_0, icc, nsim = 1999L, type = "residual")
 
 \doublespacing
 
-For the fixed effects and $R^2$, we exemplify four ways to construct CIs with `boot::boot.ci()` with residual bootstrap methods: normal, basic, percentile, and BCa. For the ICC, we also illustrate the studentized CI. As discussed in Section III, the influence values are needed to compute CIs with BCa and can be obtained using the function `empinf_mer()` in *bootmlm*. This function requires the inputs of the fitted model (`mod_f` and `mod_0`), the defined function that computes the parameter estimate(s) (`eff_rsq()` and `icc()`), and the index of the statistic in the output of the defined function. As `eff_rsq()` yields 13 statistics, we can use `lapply()` to conveniently compute the influence values for all of them at once. 
+For the fixed effects, random effects, and $R^2$, we exemplify four ways to construct CIs with `boot::boot.ci()` with residual bootstrap methods: normal, basic, percentile, and additionally, BCa. For the ICC, we also illustrate the studentized CI. As discussed in Section III, the influence values are needed to compute CIs with BCa and can be obtained using the function `empinf_mer()` in *bootmlm*. This function requires the inputs of the fitted model (`mod_f` and `mod_0`), the defined function that computes the parameter estimate(s) (`eff_rsq()` and `icc()`), and the index of the statistic in the output of the defined function. As `eff_rsq()` yields 13 statistics, we can use `lapply()` to conveniently compute the influence values for all of them at once. 
 
 \singlespacing
 
@@ -366,12 +368,13 @@ compare_boo %>%
   kable_styling(font_size = 10.5)
 ```
 
-Tables\ \@ref(tab:comp1)-\@ref(tab:comp4) summarize the standard errors and CIs for all parameters with the illustrated bootstrap approaches. The tables also include the uncorrected estimates and asymptotic standard errors from the *lme4* model output, as well as the confidence intervals based on profile likelihood using `confint(profile(mod_f, prof.scale = "varcov"))`. Note that with non-bootstrap methods, it is generally difficult to obtain the standard errors and confidence intervals for ICC and $R^2$. Moreover, as there are no direct ways to obtain standard errors of the variance components for the random effects from *lme4* at the time of writing, we relied on the `vcov_vc()` function from *bootmlm* to compute these standard errors. Recall that parametric bootstrap assumes normality; residual bootstrap relaxes the normality assumption but still relies on the homoscedasticity assumption; wild bootstrap relaxes the homoscedasticity assumption but relies on the normality assumption; cases bootstrap relaxes both assumptions but requires more time to perform with lower computational efficiency. Since the intelligence variable violates both the normality and homoscedasticity assumptions, we expect to see differences in the standard errors and CIs between methods for the fixed effects related to intelligence. 
+Tables\ \@ref(tab:comp1)-\@ref(tab:comp4) summarize the standard errors and CIs for all parameters with the illustrated bootstrap approaches. The tables also include the uncorrected estimates and asymptotic standard errors from the *lme4* model output, as well as the confidence intervals based on profile likelihood using `confint(profile(mod_f, prof.scale = "varcov"))`. Note that with non-bootstrap methods, it is generally difficult to obtain the standard errors and confidence intervals for ICC and $R^2$. Moreover, as there are no direct ways to obtain standard errors of the variance components for the random effects from *lme4* at the time of writing, we relied on the `vcov_vc()` function from *bootmlm* to compute these standard errors. 
+
+Recall that parametric bootstrap assumes normality; residual bootstrap relaxes the normality assumption but still relies on the homoscedasticity assumption; wild bootstrap relaxes the homoscedasticity assumption but relies on the normality assumption; cases bootstrap relaxes both assumptions but requires more time to perform with lower computational efficiency. Since the intelligence variable violates both the normality and homoscedasticity assumptions, we expect to see differences in the standard errors and CIs between methods for the fixed effects related to intelligence. 
 
 For the school-level fixed effects, the standard errors and CIs are similar across methods, except for the school-mean intelligence ($\gamma_{01}$). The bootstrap CIs are generally narrower than the likelihood-based CI for $\gamma_{01}$. For the student-level fixed effects, the standard errors and CIs are similar across methods, except for the fixed effect of student-level intelligence ($\gamma_{10}$) and the interaction between the student-level intelligence and socio-economic status ($\gamma_{40}$). Similarly, the cases bootstrap with resampling at both levels gives larger standard errors and wider CIs. For school-mean intelligence, student-level intelligence, and the interaction between student-level intelligence and SES ($\gamma_{01}, \gamma_{10}, \gamma_{40}$), the cases bootstrap with resampling at both levels shows the most drastic differences with larger standard errors and wider CIs. 
 
-For the between-variances and covariance between the within- and between-random effects ($\tau^2_{11}, \tau_{01}$), the standard errors and CIs are similar across methods; for the within-variances and residual variances ($\tau^2_{00}, \sigma^2$), however, the standard errors and bootstrap CIs slightly differ across methods. The residual bootstraps yield the smallest SE and narrowest CIs for $\tau^2_{00}$ but a larger SE and wider CIs for $\sigma^2$. The wild bootstraps have a larger SE and wider CIs than all methods, except cases bootstrap with resampling at both levels, for $\tau^2_{00}$ and $\sigma^2$. The cases bootstraps produce unusually small bias-corrected estimates, large SEs, and wide CIs, comparing to other methods. As the cases bootstrap has also been found to perform poorly for variance component estimation [@vanderleeden1997; @vanderleeden2008], we do not recommend cases bootstrap at both levels for the random effect variance components. More studies are needed to evaluate the performance of the cases bootstrap. For the $R^2$ and ICC, all methods yield similar standard errors and CIs, but for ICC in particular, the cases bootstrap at both levels tend to give narrowest intervals with the normal and basic CIs. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense WT: sounds good, thanks-->
-
+For the between-variances and the covariance between the random effects ($\tau^2_{11}, \tau_{01}$), the standard errors and CIs are similar across methods; for the within-variances and residual variances ($\tau^2_{00}, \sigma^2$), however, the standard errors and bootstrap CIs slightly differ across methods. The residual bootstraps yield the smallest SE and narrowest CIs for $\tau^2_{00}$ but a larger SE and wider CIs for $\sigma^2$. The wild bootstraps have a larger SE and wider CIs than all methods, except cases bootstrap with resampling at both levels, for $\tau^2_{00}$ and $\sigma^2$. The cases bootstraps produce unusually small bias-corrected estimates, large SEs, and wide CIs, comparing to other methods. While the cases bootstrap has also been found to perform poorly for variance component estimation [@vanderleeden1997; @vanderleeden2008], we do not recommend cases bootstrap at both levels for the random effect variance components. More studies are needed to evaluate the performance of the cases bootstrap. For the $R^2$ and ICC, all methods yield similar standard errors and CIs, but for ICC in particular, the cases bootstrap at both levels tend to give narrowest intervals with the normal and basic CIs. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense WT: sounds good, thanks-->
 
 ## Bootstrap CI With Transformation
 
