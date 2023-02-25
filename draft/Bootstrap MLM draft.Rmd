@@ -1,5 +1,5 @@
 ---
-title             : "Bootstrap methods for multilevel data when asymptotic distributional assumptions are not tenable"
+title             : "Bootstrap Methods for Robust Multilevel Analysis"
 shorttitle        : "BOOTSTRAPPING MLM"
 
 author: 
@@ -58,7 +58,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 # knitr::opts_knit$set(latex.tilde = "\\hlopt{\\scriptsize{\\ensuremath{\\sim}}}")
 ```
 
-# Section I: What is Bootstrap
+# Section I: An Overview of Bootstrap Methods
 
 ```{r child='brief intro.Rmd'}
 
@@ -70,7 +70,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 ```
 
-## Basics of the Bootstrap
+## Basics of Bootstrap Methods
 
 ```{r child='boot_intro.Rmd'}
 
