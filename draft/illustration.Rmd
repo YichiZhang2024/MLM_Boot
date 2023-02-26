@@ -180,7 +180,7 @@ boo_res_icc <- bootstrap_mer(mod_0, icc, nsim = 1999L, type = "residual")
 
 \doublespacing
 
-For the fixed effects, random effects, and $R^2$, we exemplify four ways to construct CIs with `boot::boot.ci()` with residual bootstrap methods: normal, basic, percentile, and additionally, BCa. For the ICC, we also illustrate the studentized CI. As discussed in Section III, the influence values are needed to compute CIs with BCa and can be obtained using the function `empinf_mer()` in *bootmlm*. This function requires the inputs of the fitted model (`mod_f` and `mod_0`), the defined function that computes the parameter estimate(s) (`eff_rsq()` and `icc()`), and the index of the statistic in the output of the defined function. As `eff_rsq()` yields 13 statistics, we can use `lapply()` to conveniently compute the influence values for all of them at once. 
+For the fixed effects, random effects, and $R^2$, we exemplify four ways to construct CIs with `boot::boot.ci()` with the residual bootstrap methods: normal, basic, percentile, and additionally, BCa. For the ICC, we also illustrate the studentized CI. As discussed in Section III, the influence values are needed to compute CIs with BCa and can be obtained using the function `empinf_mer()` in *bootmlm*. This function requires the inputs of the fitted model (`mod_f` and `mod_0`), the defined function that computes the parameter estimate(s) (`eff_rsq()` and `icc()`), and the index of the statistic in the output of the defined function. As `eff_rsq()` yields 13 statistics, we can use `lapply()` to conveniently compute the influence values for all of them at once. 
 
 \singlespacing
 
@@ -305,8 +305,9 @@ compare_boo %>%
   knitr::kable(
     booktabs = TRUE, 
     escape = FALSE, 
-    col.names = c("", "Type", "$\\gamma_{00}$", "$\\gamma_{01}$", 
-                  "$\\gamma_{02}$", "$\\gamma_{03}$"), 
+    # col.names = c("", "Type", "$\\gamma_{00}$", "$\\gamma_{01}$", 
+    #               "$\\gamma_{02}$", "$\\gamma_{03}$"), 
+    col.names = c("", "Type", "Intercept", "IQ", "SES", "IQ $\\times$ SES"), 
     caption = tab1_cap
   ) %>%
   collapse_rows(1:2) %>%
@@ -323,8 +324,9 @@ compare_boo %>%
   knitr::kable(
     booktabs = TRUE, 
     escape = FALSE, 
-    col.names = c("", "Type", "$\\gamma_{10}$", 
-                  "$\\gamma_{20}$", "$\\gamma_{30}$", "$\\gamma_{40}$"), 
+    # col.names = c("", "Type", "$\\gamma_{10}$", 
+    #               "$\\gamma_{20}$", "$\\gamma_{30}$", "$\\gamma_{40}$"), 
+    col.names = c("", "Type", "IQ", "SES", "Gender", "IQ $\\times$ SES"), 
     caption = tab2_cap
   ) %>%
   collapse_rows(1:2) %>%
@@ -341,8 +343,8 @@ compare_boo %>%
   knitr::kable(
     booktabs = TRUE, 
     escape = FALSE, 
-    col.names = c("", "Type", "$\\tau^2_{00}$", 
-                  "$\\tau^2_{11}$", "$\\tau_{01}$", "$\\sigma^2$"), 
+    col.names = c("", "Type", "$\\tau^2_{00}$",
+                  "$\\tau^2_{11}$", "$\\tau_{01}$", "$\\sigma^2$"),
     caption = tab3_cap
   ) %>%
   collapse_rows(1:2) %>%
@@ -355,7 +357,7 @@ compare_boo %>%
 compare_boo %>%
   select(stat:boo_type, rsq, rsq_trans, icc) %>%
   filter(!(stat %in% c("Asymptotic SE", "Likelihood-Based C.I.")), 
-         !(stat %in% c("Studentized", "BCA") & boo_type == "Wild"), 
+         # !(stat %in% c("Studentized", "BCA") & boo_type == "Wild"), 
          !(stat == "BCA" & boo_type %in% c("Parametric", "Wild"))) %>%
   knitr::kable(
     booktabs = TRUE, 
@@ -365,16 +367,18 @@ compare_boo %>%
     caption = tab4_cap
   ) %>%
   collapse_rows(1:2) %>%
-  kable_styling(font_size = 10.5)
+  kable_styling(font_size = 9.5)
 ```
 
 Tables\ \@ref(tab:comp1)-\@ref(tab:comp4) summarize the standard errors and CIs for all parameters with the illustrated bootstrap approaches. The tables also include the uncorrected estimates and asymptotic standard errors from the *lme4* model output, as well as the confidence intervals based on profile likelihood using `confint(profile(mod_f, prof.scale = "varcov"))`. Note that with non-bootstrap methods, it is generally difficult to obtain the standard errors and confidence intervals for ICC and $R^2$. Moreover, as there are no direct ways to obtain standard errors of the variance components for the random effects from *lme4* at the time of writing, we relied on the `vcov_vc()` function from *bootmlm* to compute these standard errors. 
 
-Recall that parametric bootstrap assumes normality; residual bootstrap relaxes the normality assumption but still relies on the homoscedasticity assumption; wild bootstrap relaxes the homoscedasticity assumption but relies on the normality assumption; cases bootstrap relaxes both assumptions but requires more time to perform with lower computational efficiency. Since the intelligence variable violates both the normality and homoscedasticity assumptions, we expect to see differences in the standard errors and CIs between methods for the fixed effects related to intelligence. 
+Recall that the parametric bootstrap assumes normality; the residual bootstrap relaxes the normality assumption but still relies on the homoscedasticity assumption; the wild bootstrap relaxes the homoscedasticity assumption but relies on the normality assumption; the cases bootstrap relaxes both assumptions but requires more time to perform with lower computational efficiency. Since the intelligence variable violates both the normality and homoscedasticity assumptions, we expect to see differences in the standard errors and CIs between methods for the fixed effects related to intelligence. 
 
-For the school-level fixed effects, the standard errors and CIs are similar across methods, except for the school-mean intelligence ($\gamma_{01}$). The bootstrap CIs are generally narrower than the likelihood-based CI for $\gamma_{01}$. For the student-level fixed effects, the standard errors and CIs are similar across methods, except for the fixed effect of student-level intelligence ($\gamma_{10}$) and the interaction between the student-level intelligence and socio-economic status ($\gamma_{40}$). Similarly, the cases bootstrap with resampling at both levels gives larger standard errors and wider CIs. For school-mean intelligence, student-level intelligence, and the interaction between student-level intelligence and SES ($\gamma_{01}, \gamma_{10}, \gamma_{40}$), the cases bootstrap with resampling at both levels shows the most drastic differences with larger standard errors and wider CIs. 
+For the school-level fixed effects, the asymptotic standard errors and likelihood-based CIs are similar to the bootstrap standard errors and CIs, except for the school-mean intelligence ($\gamma_{01}$). The bootstrap CIs are generally narrower than the likelihood-based CI for $\gamma_{01}$. For the student-level fixed effects, the standard errors and CIs are similar across methods, except for the fixed effect of student-level intelligence ($\gamma_{10}$) and the interaction between the student-level intelligence and socio-economic status ($\gamma_{40}$). Similarly, the cases bootstrap with resampling at both levels gives larger standard errors and wider CIs. For school-mean intelligence, student-level intelligence, and the interaction between student-level intelligence and SES ($\gamma_{01}, \gamma_{10}, \gamma_{40}$), the cases bootstrap with resampling at both levels shows the most drastic differences with larger standard errors and wider CIs. 
 
-For the between-variances and the covariance between the random effects ($\tau^2_{11}, \tau_{01}$), the standard errors and CIs are similar across methods; for the within-variances and residual variances ($\tau^2_{00}, \sigma^2$), however, the standard errors and bootstrap CIs slightly differ across methods. The residual bootstraps yield the smallest SE and narrowest CIs for $\tau^2_{00}$ but a larger SE and wider CIs for $\sigma^2$. The wild bootstraps have a larger SE and wider CIs than all methods, except cases bootstrap with resampling at both levels, for $\tau^2_{00}$ and $\sigma^2$. The cases bootstraps produce unusually small bias-corrected estimates, large SEs, and wide CIs, comparing to other methods. While the cases bootstrap has also been found to perform poorly for variance component estimation [@vanderleeden1997; @vanderleeden2008], we do not recommend cases bootstrap at both levels for the random effect variance components. More studies are needed to evaluate the performance of the cases bootstrap. For the $R^2$ and ICC, all methods yield similar standard errors and CIs, but for ICC in particular, the cases bootstrap at both levels tend to give narrowest intervals with the normal and basic CIs. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense WT: sounds good, thanks-->
+For the between-variances and the covariance between the random effects ($\tau^2_{11}, \tau_{01}$), the bootstrap standard errors and CIs are similar to the asymptotic standard errors and likelihood based CIs, as well as across bootstrap methods. For the within-variances and residual variances ($\tau^2_{00}, \sigma^2$), however, the bootstrap CIs are generally narrower than the likehood-based CIs, and the standard errors and bootstrap CIs slightly differ across methods. The residual bootstrap yields the smallest SE and narrowest CIs for $\tau^2_{00}$ but a larger SE and wider CIs for $\sigma^2$. The wild bootstrap has a larger SE and wider CIs than all methods, except cases bootstrap with resampling at both levels, for $\tau^2_{00}$ and $\sigma^2$. The cases bootstrap produces unusually small bias-corrected estimates, large SEs, and wide CIs, comparing to other methods. As the cases bootstrap has also been found to perform poorly for variance component estimation [@vanderleeden1997; @vanderleeden2008], we do not recommend cases bootstrap at both levels for the random effect variance components. More studies are needed to evaluate the performance of the cases bootstrap. 
+
+For the $R^2$ and ICC, although the asymptotic standard errors and likelihood-based CIs are generally unobtainable, we can use bootstrap methods to estimate the standard errors and CIs. All bootstrap methods yield similar standard errors and CIs, but for ICC in particular, the cases bootstrap at both levels tend to give narrowest intervals with the normal and basic CIs. <!-- ML: you mean "narrower" CI? lower CI doesn't seem to make sense WT: sounds good, thanks-->
 
 ## Bootstrap CI With Transformation
 
