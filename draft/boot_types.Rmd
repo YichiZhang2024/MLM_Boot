@@ -73,8 +73,8 @@ The wild bootstrap is expected to perform better than the other bootstraps under
 
 Similar to the wild bootstrap, the cases bootstrap can overcome the problem of heteroscedasticity. The cases bootstrap has the least restrictive assumption among all bootstrapping procedures because it only assumes a correct specification of hierarchical structure. It resamples the observations (including predictors contained in $\bv{X}_j$ and $\bv{Z}_j$) with replacements [@davison1997]. There are multiple versions of cases bootstrap for multilevel data [@vanderleeden2008]. For any version, the cases bootstrap keeps each observed response $y_{ij}$ pairing with the observed predictors $\bv{X}_{ij}$ and $\bv{Z}_{ij}$. Note that the size of each bootstrap sample could be different from the original sample size when the clusters are unbalanced. One version of cases bootstrap is to only resample level-2 units and keeps level-1 units intact.
 
-1. Draw a sample of size $J$, $\{j^*_k, k = 1,...,J\}$, with replacement from the identifier of level-2 units.
-2. For each $k$, draw a sample of entire cases, ${(y_{ik}^*, \bv{X}_{ik}^*, \bv{Z}_{ik}^*)}$, where $i = 1,...,n_k^*$, with replacement from the selected level-2 unit $j = j^*_k$.
+1. Draw a sample of size $J$, $\{j^*_k, k = 1,...,J\}$, with replacement from the identifiers of level-2 units.
+2. For each $k$, take the sample of entire cases, ${(y_{ik}^*, \bv{X}_{ik}^*, \bv{Z}_{ik}^*)}$, where $i = 1,...,n_k^*$, from the selected level-2 unit $j = j^*_k$.
 3. Fit the two-level model to the bootstrap data and obtain parameter estimates.
 4. Repeat steps 1-3 $B$ times to obtain a bootstrap distribution of parameter estimates. 
 
@@ -88,7 +88,7 @@ An alternative procedure is to first resample the level-2 units and then resampl
 1. Draw one entire level-2 unit, ${(\bv{y}_{j}, \bv{X}_{j}, \bv{Z}_{j})}$, with replacement.
 2. Draw a sample of level-1 observations with size $n_j$ from the selected level-2 unit.
 3. Repeat steps 1-2 $J$ times.
-4. Fit the two-level model to bootstrap data and obtain parameter estimates.
+4. Fit the two-level model to the bootstrap data and obtain parameter estimates.
 5. Repeat steps 1-4 $B$ times to obtain a bootstrap distribution of parameter estimates. 
 
 Selecting the appropriate cases bootstrap procedure depends on the degree of randomness of the sampling and the sample size for both levels [@vanderleeden2008]. For example, if the repeated measures from individuals are collected, then it is appropriate to resample only individuals (level-2). However, for another example, if individuals' responses from multiple countries are collected, researchers could consider first resampling the countries with replacements, then resampling the individuals within selected countries with replacements. Compared to other bootstrap algorithms, cases bootstrap is less efficient but provides consistent estimators when the normality or homoscedasticity assumptions are violated [@vanderleeden2008]. 

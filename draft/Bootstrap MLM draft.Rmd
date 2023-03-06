@@ -88,7 +88,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 ```
 
-# Section III: Confidence Interval
+# Section III: Confidence Intervals
 
 ```{r child='boot_ci1.Rmd'}
 
