@@ -17,7 +17,7 @@ The basic CI, also called Hall's percentile CI, uses quantiles of the bootstrapp
 <!-- ML: I think it's important to make clear what se_B^* is, and that it is specific to a particular bootstrap sample -->
 
 Similar to the basic CI, bootstrap-$t$ CI replaces the quantiles of the normal distribution by quantiles of the bootstrap distribution. The difference between bootstrap-$t$ CI and the basic CI is that bootstrap-$t$ uses the bootstrap distribution of $t^* = (\hat \theta - \hat \theta ^*)/\hat{se}^*$ [@davison1997; @vanderleeden2008]. The bootstrap-$t$ confidence interval can be obtained by replacing $z_{1- \frac{1}{2}\alpha}$ by $t_{1-\frac{1}{2}\alpha}^*$, the $1-\frac{1}{2}\alpha$th quantiles of $t^*$,
-$$[\hat \theta - t^*_{1-\frac{1}{2}\alpha}\hat{se}, \hat \theta + t^*_{1-\frac{1}{2}\alpha}\hat{se}],$$ where $\hat{se}$ is the bootstrap estimator of the asymptotic standard errors of $\hat \theta$. 
+$$[\hat \theta - t^*_{1-\frac{1}{2}\alpha}\hat{se}^*, \hat \theta + t^*_{1-\frac{1}{2}\alpha}\hat{se}^*],$$ where $\hat{se}$ is the bootstrap estimator of the asymptotic standard errors of $\hat \theta$. 
 
 ## Percentile CI
 
@@ -25,7 +25,7 @@ The percentile CI is formed by using quantiles directly from the bootstrapped di
 
 ## Bias-Corrected and Bias-Corrected and Accelerated CI
 
-To correct the bias contained in the percentile CI, @efron1993 proposed the bias-corrected and accelerated (BCa) CI. They defined two quantiles, $\alpha_L$ and $1-\alpha_U$, as
+To correct the bias contained in the percentile CI, @efron1993 proposed the bias-corrected and accelerated (BCa) CI. They defined two quantiles, $\alpha_L$ and $\alpha_U$, as
 $$
   \begin{aligned}
 \alpha_L = \Phi\left(w + \frac{w + z_{\alpha/2}}{1- \alpha(w+z_{\alpha/2})}\right) \\
