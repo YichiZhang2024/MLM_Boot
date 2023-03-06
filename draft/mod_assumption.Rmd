@@ -4,6 +4,7 @@ This chapter focuses on two-level models, where participants or observations (le
 \bv{y}_j = \bv{X}_j\bv{\beta} + \bv{Z}_j \bv{U}_j + \bv{\epsilon}_j
 (\#eq:mod-eq)
 \end{equation}
+
 where $\bv{y}_j$ is an $n_j \times 1$ outcome vector for the $j$th cluster, $\bv{X}_j$ is an $n_j \times p$ design matrix for the unknown fixed parameters (including the intercept and predictors), $\bv{\beta}$ is an $p \times 1$ vector for the fixed effects, $\bv{Z}_j$ is an $n_j \times r$ design matrix for $r$ random effects, $\bv{U}_j$ is an $r \times 1$ vector of the unknown random components (including the random intercept and random slopes), <!-- ML: is there a reason to use capital U instead of small u? I generally use uppercase letter for a matrix, like X or Z. WT: makes sense. I was following Hox but I think lower case u for a vector is clearer. --> and $\bv{\epsilon}_j$ is an $n_j \times 1$ error vector. $\bv{U}_j$ and $\bv{\epsilon}_j$ are assumed to follow a multivariate normal distribution:
 <!-- YZ: Maybe add a sentence what r is WT: I just changed to this sentence "$\bv{Z_j}$ is a $n_j \times r$ design matrix for $r$ random effects". Does it sound clear enough?-->
 \begin{equation}
