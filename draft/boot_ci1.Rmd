@@ -7,7 +7,7 @@ In addition to obtaining bias-corrected standard errors, bootstrapping is widely
 
 ## Bootstrap Normal CI
 
-If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmetric CI is $$[\hat \theta - z_{1-\frac{1}{2}\alpha}\hat{se}_N, \hat \theta + z_{1-\frac{1}{2}\alpha}\hat{se}_N],$$ where $\hat \theta$ is the estimated parameter, and $\hat se_N$ is the estimator of the asymptotic standard deviation of $\hat \theta$. For bootstrap normal confidence interval, $\hat{se}_N$ is replaced with $\hat{se}^*$ [@vanderleeden2008],<!-- ML: I think Winnie used a different notation for bootstrap SE --> the bootstrap estimator of the standard deviation of $\hat \theta$, so the bootstrap normal CI can be constructed as $$[\hat \theta - z_{1-\frac{1}{2}\alpha}\hat{se}^*, \hat \theta + z_{1-\frac{1}{2}\alpha}\hat{se}^*].$$
+If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmetric CI is $$[\hat \theta - z_{1-\frac{1}{2}\alpha}\hat{se}_N, \hat \theta + z_{1-\frac{1}{2}\alpha}\hat{se}_N],$$ where $\hat \theta$ is the estimated parameter, and $\hat se_N$ is the sample standard error of $\hat \theta$. For bootstrap normal confidence interval, $\hat{se}_N$ is replaced with $\hat{se}^*$ [@vanderleeden2008],<!-- ML: I think Winnie used a different notation for bootstrap SE --> the bootstrap estimator of the standard deviation of $\hat \theta$, so the bootstrap normal CI can be constructed as $$[\hat \theta - z_{1-\frac{1}{2}\alpha}\hat{se}^*, \hat \theta + z_{1-\frac{1}{2}\alpha}\hat{se}^*].$$
 
 ## Basic/Hall's Percentile
 <!-- ML: the description can be clearer, I think. Should we mention that the interval adjusts for bias? YZ: does it look better now?-->
@@ -17,7 +17,7 @@ The basic CI, also called Hall's percentile CI, uses quantiles of the bootstrapp
 <!-- ML: I think it's important to make clear what se_B^* is, and that it is specific to a particular bootstrap sample -->
 
 Similar to the basic CI, bootstrap-$t$ CI replaces the quantiles of the normal distribution by quantiles of the bootstrap distribution. The difference between bootstrap-$t$ CI and the basic CI is that bootstrap-$t$ uses the bootstrap distribution of $t^* = (\hat \theta - \hat \theta ^*)/\hat{se}^*$ [@davison1997; @vanderleeden2008]. The bootstrap-$t$ confidence interval can be obtained by replacing $z_{1- \frac{1}{2}\alpha}$ by $t_{1-\frac{1}{2}\alpha}^*$, the $1-\frac{1}{2}\alpha$th quantiles of $t^*$,
-$$[\hat \theta - t^*_{1-\frac{1}{2}\alpha}\hat{se}^*, \hat \theta + t^*_{1-\frac{1}{2}\alpha}\hat{se}^*],$$ where $\hat{se}^*$ is the bootstrap estimator of the asymptotic standard errors of $\hat \theta$. 
+$$[\hat \theta - t^*_{1-\frac{1}{2}\alpha}\hat{se}^*, \hat \theta + t^*_{1-\frac{1}{2}\alpha}\hat{se}^*],$$ where $\hat{se}^*$ is the bootstrap standard errors of $\hat \theta$. 
 
 ## Percentile CI
 
