@@ -7,7 +7,7 @@ In addition to obtaining bias-corrected standard errors, bootstrapping is widely
 
 ## Bootstrap Normal CI
 
-If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmetric CI is $$[\hat \theta - z_{1-\frac{1}{2}\alpha}\hat{se}_N, \hat \theta + z_{1-\frac{1}{2}\alpha}\hat{se}_N],$$ where $\hat \theta$ is the estimated parameter, and $\hat se_N$ is the sample standard error of $\hat \theta$. For bootstrap normal confidence interval, $\hat{se}_N$ is replaced with $\hat{se}^*$ [@vanderleeden2008],<!-- ML: I think Winnie used a different notation for bootstrap SE --> the bootstrap estimator of the standard deviation of $\hat \theta$, so the bootstrap normal CI can be constructed as $$[\hat \theta - z_{1-\frac{1}{2}\alpha}\hat{se}^*, \hat \theta + z_{1-\frac{1}{2}\alpha}\hat{se}^*].$$
+If normality holds, then the common approximate $(1-\alpha) \times 100\%$ symmetric CI is $$[\hat \theta - z_{1-\frac{1}{2}\alpha}\hat{se}_N, \hat \theta + z_{1-\frac{1}{2}\alpha}\hat{se}_N],$$ where $\hat \theta$ is the estimated parameter, and $\hat se_N$ is the sample standard error of $\hat \theta$. For bootstrap normal confidence interval, $\hat{se}_N$ is replaced with $\hat{se}^*$ [@vanderleeden2008],<!-- ML: I think Winnie used a different notation for bootstrap SE --> the bootstrap standard error of $\hat \theta$, so the bootstrap normal CI can be constructed as $$[\hat \theta - z_{1-\frac{1}{2}\alpha}\hat{se}^*, \hat \theta + z_{1-\frac{1}{2}\alpha}\hat{se}^*].$$
 
 ## Basic/Hall's Percentile
 <!-- ML: the description can be clearer, I think. Should we mention that the interval adjusts for bias? YZ: does it look better now?-->
@@ -26,12 +26,10 @@ The percentile CI is formed by using quantiles directly from the bootstrapped di
 ## Bias-Corrected and Bias-Corrected and Accelerated CI
 
 To correct the bias contained in the percentile CI, @efron1993 proposed the bias-corrected and accelerated (BCa) CI. They defined two quantiles, $\alpha_L$ and $\alpha_U$, as
-$$
-  \begin{aligned}
-\alpha_L = \Phi\left(w + \frac{w + z_{\alpha/2}}{1- \alpha(w+z_{\alpha/2})}\right) \\
-\alpha_U = \Phi\left(w + \frac{w + z_{1-\alpha/2}}{1- \alpha(w+z_{1-\alpha/2})}\right),
-  \end{aligned}
-$$
+\begin{align}
+\alpha_L &= \Phi\left(w + \frac{w + z_{\alpha/2}}{1- \alpha(w+z_{\alpha/2})}\right) \\
+\alpha_U &= \Phi\left(w + \frac{w + z_{1-\alpha/2}}{1- \alpha(w+z_{1-\alpha/2})}\right),
+\end{align}
 and suggested using these two quantiles to construct the BCa CI.
 Here $w$ is the bias correction for the median, and $a$ is the acceleration (skewness) correction for the distribution of the estimator. These two correcting factors can be computed using the formulas below:
 $$w = \Phi^{-1} \left(\frac{\sum_{r = 1}^{R} I_{\{\hat{\theta}^* < \theta\}}}{R+1}\right)$$

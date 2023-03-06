@@ -22,6 +22,10 @@ u_{0j} \\ u_{1j}
 \begin{bmatrix}\tau^2_{00}\\
 \tau_{01} & \tau^2_{11}
 \end{bmatrix}\right) \\
+\end{split}
+\end{align}
+\begin{align}
+\begin{split}
 \text{Combined: } & \text{lang}_{ij} = \gamma_{00} + \gamma_{10}\text{IQ}_{ij} + \gamma_{20}\text{SES}_{ij} + \gamma_{30}\text{gender}_{ij} + \gamma_{40}\text{IQ}_{ij} \times \text{SES}_{ij} + \\
 & \quad \gamma_{01} \text{school\_IQ}_{j} + \gamma_{02} \text{school\_SES}_j + \gamma_{03} \text{school\_IQ}_j \times \text{school\_SES}_j + \\
 & \quad u_{0j} + u_{1j} \text{IQ}_{ij} + \epsilon_{ij}, 
@@ -30,7 +34,6 @@ u_{0j} \\ u_{1j}
 \end{align}
 where <!-- ML: I think you've explained school_SES and school_IQ already. WT: good catch, thanks!-->$\gamma_{00}$ is the grand intercept of language scores; $\gamma_{01}$ and $\gamma_{02}$ are the school-level fixed effects of intelligence and SES, respectively; $\gamma_{03}$ is the school-level interaction between intelligence and SES; $\gamma_{10}$ and $\gamma_{20}$ are the student-level fixed effects of intelligence and SES, respectively; $\gamma_{30}$ is the student-level interaction between intelligence and SES; $u_{0j}$ is the random effect from the grand intercept; and $u_{1j}$ is the random effect from the student-level intelligence. For reproducibility, we use the following syntax to download and import the dataset from the website of @snijders2012 to our local R environment. 
 
-<!-- YZ: Maybe add a sentence to explain the difference between $IQ_j$ and $school_IQ_j$? Something like we  [X] WT: added to line 47 -->
 \singlespacing
 
 ```{r}
